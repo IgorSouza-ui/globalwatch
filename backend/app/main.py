@@ -124,6 +124,16 @@ class ParamsIn(BaseModel):
 
 
 # =========================================================================== públicos
+@app.get("/")
+def root() -> dict[str, Any]:
+    return {
+        "status": "online",
+        "servico": "Global Watch · Assistente Geoespacial para Café",
+        "frontend": "https://globalwatch-cafe.vercel.app",
+        "documentacao": "/api/docs",
+    }
+
+
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     return {"status": "ok"}
