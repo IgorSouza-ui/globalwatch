@@ -62,6 +62,27 @@ async def _purge_loop(settings: Settings) -> None:
         await asyncio.sleep(3600)
 
 
+def _warmup_samples_cache(settings: Settings) -> None:
+    try:
+        for sample in SAMPLES:
+            sample_id = sample.get("id")
+            if not sample_id or "files" not in sample or "image" not in sample["files"]:
+                continue
+            cache_dir = settings.data_dir / "samples_cache" / sample_id
+            if (cache_dir / "resultado.json").exists() and (cache_dir / "areas_potenciais_cafe.geojson").exists():
+                continue
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            img = SAMPLES_DIR / sample["files"]["image"]
+            scl = SAMPLES_DIR / sample["files"]["scl"] if "scl" in sample["files"] else None
+            if not img.exists():
+                continue
+            res = run_pipeline(img, sample["filename"], cache_dir, scl, ClassParams(), settings.max_pixels, None)
+            (cache_dir / "resultado.json").write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
+            log.info("Amostra '%s' pré-aquecida no cache.", sample_id)
+    except Exception:
+        log.exception("Falha no aquecimento de amostras em segundo plano")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -69,8 +90,10 @@ async def lifespan(app: FastAPI):
     if settings.session_secret.startswith("troque") and not settings.allow_dev_login:
         log.warning("SESSION_SECRET padrão em uso! Defina um segredo forte em produção.")
     task = asyncio.create_task(_purge_loop(settings))
+    warmup_task = asyncio.create_task(run_in_threadpool(_warmup_samples_cache, settings))
     yield
     task.cancel()
+    warmup_task.cancel()
 
 
 app = FastAPI(title="Global Watch · Assistente Geoespacial para Café", version="1.0.0", lifespan=lifespan,
@@ -320,9 +343,34 @@ async def create_sample_analysis(request: Request, sample_id: str, user: User = 
     _consume_analysis_quota(user, settings)
     analysis_id = uuid.uuid4().hex
     storage.create_analysis(user.id, analysis_id, sample["filename"])
+
+    cache_dir = settings.data_dir / "samples_cache" / sample_id
+    res_file = cache_dir / "resultado.json"
+    if res_file.exists() and (cache_dir / "areas_potenciais_cafe.geojson").exists():
+        out = storage.analysis_dir(user.id, analysis_id)
+        out.mkdir(parents=True, exist_ok=True)
+        for item in cache_dir.iterdir():
+            if item.is_file():
+                shutil.copy2(item, out / item.name)
+        result = json.loads(res_file.read_text(encoding="utf-8"))
+        storage.finish_analysis(analysis_id, result)
+        analysis = storage.get_analysis(user.id, analysis_id)
+        storage.add_message(user.id, analysis_id, "assistant", chat.intro_message(analysis))
+        storage.enforce_max_stored(user.id, settings.max_stored_analyses_per_user)
+        return _public(analysis)
+
     scl = SAMPLES_DIR / sample["files"]["scl"] if "scl" in sample["files"] else None
-    return await _run_analysis(user, settings, sample["filename"], SAMPLES_DIR / sample["files"]["image"], scl,
+    res = await _run_analysis(user, settings, sample["filename"], SAMPLES_DIR / sample["files"]["image"], scl,
                                ClassParams(), None, analysis_id)
+    try:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        user_out = storage.analysis_dir(user.id, analysis_id)
+        for item in user_out.iterdir():
+            if item.is_file():
+                shutil.copy2(item, cache_dir / item.name)
+    except Exception:
+        log.exception("Falha ao salvar amostra %s no cache", sample_id)
+    return res
 
 
 @app.get("/api/analyses")
