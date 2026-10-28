@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     allow_dev_login: bool = False
 
     # --- CORS -----------------------------------------------------------
-    # Lista separada por vírgula, ex: "https://app.vercel.app,http://localhost:5173"
-    cors_origins: str = "http://localhost:5173"
+    # Lista separada por vírgula, ex: "https://app.vercel.app,http://localhost:5173" ou "*"
+    cors_origins: str = "*"
 
     # --- IA (chatbot) ---------------------------------------------------
     gemini_api_key: str = ""
