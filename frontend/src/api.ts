@@ -190,17 +190,25 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (resp.status === 401) {
     setStoredToken(null)
   }
+  const contentType = resp.headers.get('content-type') || ''
   if (!resp.ok) {
     let msg = `Erro HTTP ${resp.status}`
     try {
-      const body = await resp.json()
-      if (body?.detail) {
-        msg = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+      if (contentType.includes('application/json')) {
+        const body = await resp.json()
+        if (body?.detail) {
+          msg = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail)
+        }
       }
     } catch {
       // ignora erro de parse
     }
     throw new Error(msg)
+  }
+  if (!contentType.includes('application/json')) {
+    throw new Error(
+      'Não foi possível conectar ao backend geoespacial. Verifique se o servidor Python está ativo e se a variável VITE_API_BASE_URL está configurada.',
+    )
   }
   return resp.json() as Promise<T>
 }
