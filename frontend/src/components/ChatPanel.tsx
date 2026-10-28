@@ -199,9 +199,6 @@ export function ChatPanel({ analysis, iaConfigurada, onQuotaChange }: ChatPanelP
             <Send className="size-3.5" />
           </button>
         </div>
-        <p className="mt-2 text-center text-[9px] text-[#8b9992]">
-          Números vindos do processamento em Python · áreas potenciais, valide em campo
-        </p>
       </form>
     </div>
   )

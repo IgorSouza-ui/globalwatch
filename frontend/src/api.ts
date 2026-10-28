@@ -3,6 +3,8 @@ export const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/,
 export interface SampleInfo {
   id: string
   titulo: string
+  rotulo?: string
+  tag?: string
   descricao: string
   regiao: string
   data: string

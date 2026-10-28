@@ -1,6 +1,9 @@
 # Global Watch · Assistente Geoespacial para Café
 
-Aplicação web fullstack (**React + TypeScript + Leaflet** no frontend e **Python + FastAPI + Rasterio + NumPy + Shapely** no backend) para login com Google, upload e processamento real de imagens multiespectrais **Sentinel-2 L2A (GeoTIFF)**, identificação e vetorização de **áreas potenciais de cultivo de café**, visualização em mapa interativo e conversa com um **Assistente IA** ancorado nos números e geometrias calculados pela aplicação.
+> 🌐 **Aplicação em Produção:** [https://globalwatch-cafe.vercel.app](https://globalwatch-cafe.vercel.app)  
+> 📦 **Repositório GitHub:** [https://github.com/IgorSouza-ui/globalwatch](https://github.com/IgorSouza-ui/globalwatch)
+
+Aplicação web fullstack (**React + TypeScript + Leaflet** no frontend e **Python + FastAPI + Rasterio + NumPy + Shapely** no backend) para autenticação com Google, upload e processamento real de imagens multiespectrais **Sentinel-2 L2A (GeoTIFF)**, identificação e vetorização de **áreas potenciais de cultivo de café**, visualização em mapa interativo de satélite e consulta a um **Assistente IA (Gemini)** contextualizado com os dados e geometrias calculados.
 
 > **Nota importante:** Índice de vegetação e bandas ópticas isoladas não comprovam a presença de café. O sistema diferencia explicitamente **áreas potenciais (candidatas)** de uma classificação validada em campo e não apresenta métricas de acurácia sem evidência de campo. Consulte a [**Nota de Pesquisa e Relato de Uso de IA (`docs/NOTA_PESQUISA.md`)**](docs/NOTA_PESQUISA.md).
 
@@ -126,7 +129,6 @@ python -m venv .venv
 
 pip install -r requirements.txt
 cp .env.example .env
-# Para teste local sem precisar configurar chave do Google OAuth, deixe ALLOW_DEV_LOGIN=true no .env
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -155,10 +157,10 @@ Acesse **`http://localhost:5173`** no navegador.
 - **Limites de uso (Rate Limiting e Cotas Diárias):**
   - *Rate limiting* por IP via `slowapi` (`6 uploads/min`, `15 msgs chat/min`, `10 logins/min`);
   - Cota diária por usuário autenticado: **15 análises/dia**, **60 mensagens de chat/dia** e até **10 análises armazenadas simultaneamente**.
-- **Serviços gratuitos, suspensão por inatividade e retenção:**
-  - **Frontend:** Hospedado na **Vercel** (plano Hobby gratuito).
-  - **Backend:** Hospedado no **Render** (plano Free Web Service). No plano gratuito do Render, a instância entra em suspensão (*sleep*) após **15 minutos de inatividade**, podendo levar de **30 a 50 segundos** na primeira requisição (*cold start*).
-  - **Retenção de dados:** Uma rotina em background (`_purge_loop`) remove automaticamente análises e arquivos com mais de **24 horas** (além da natureza efêmera do disco gratuito do Render em novos deploys).
+- **Serviços de Deploy e Hospedagem em Produção:**
+  - **Frontend:** Hospedado e entregue via CDN global na **Vercel** ([https://globalwatch-cafe.vercel.app](https://globalwatch-cafe.vercel.app)).
+  - **Backend / Pipeline Geoespacial:** Empacotado em container OCI padronizado via [`Dockerfile`](Dockerfile), pronto para execução gratuita em plataformas modernas como **Koyeb** ([`koyeb.yaml`](koyeb.yaml)), **Railway** ([`railway.json`](railway.json)) ou **Fly.io** ([`fly.toml`](fly.toml)). No Koyeb (camada gratuita Eco), o serviço fica sempre ativo sem o *cold-start* de 50s típico de provedores legados.
+  - **Retenção de dados:** Uma rotina em background (`_purge_loop`) remove automaticamente análises e arquivos com mais de **24 horas**.
 
 ---
 

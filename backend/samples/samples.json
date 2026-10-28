@@ -1,10 +1,12 @@
 [
   {
     "id": "guaxupe_2025_kit",
-    "titulo": "Guaxupé/MG — 16/08/2025 (Kit Oficial)",
-    "descricao": "Recorte oficial do desafio (Sentinel-2B L2A, 512x512 px, 10 m, EPSG:32723, estação seca).",
+    "titulo": "Guaxupé / MG",
+    "rotulo": "Sul de Minas Gerais",
+    "tag": "Safra 2025",
+    "descricao": "Monitoramento de lavouras cafeeiras no Sul de Minas (Sentinel-2, 10m).",
     "regiao": "Guaxupé, Sul de Minas Gerais",
-    "data": "2025-08-16",
+    "data": "16 de Agosto de 2025",
     "item_stac": "S2B_T23KLS_20250816T132502_L2A",
     "filename": "imagem_multiespectral.tif",
     "files": {
@@ -13,29 +15,33 @@
     }
   },
   {
-    "id": "guaxupe_2024",
-    "titulo": "Guaxupé/MG — 17/07/2024 (Comparação Multitemporal)",
-    "descricao": "Mesma área geográfica do kit um ano antes (Sentinel-2A L2A, 512x512 px, 10 m, EPSG:32723).",
-    "regiao": "Guaxupé, Sul de Minas Gerais",
-    "data": "2024-07-17",
-    "item_stac": "S2A_T23KLS_20240717T132233_L2A",
-    "filename": "guaxupe_2024.tif",
-    "files": {
-      "image": "guaxupe_2024.tif",
-      "scl": "guaxupe_2024_scl.tif"
-    }
-  },
-  {
     "id": "tres_pontas_2025",
-    "titulo": "Três Pontas/MG — 18/08/2025 (Outra Região Cafeeira)",
-    "descricao": "Região de alta densidade cafeeira no Sul de Minas (Sentinel-2C L2A, 512x512 px, 10 m, EPSG:32723).",
+    "titulo": "Três Pontas / MG",
+    "rotulo": "Sul de Minas Gerais",
+    "tag": "Safra 2025",
+    "descricao": "Mapeamento de cafezais de alta densidade no Sul de Minas.",
     "regiao": "Três Pontas, Sul de Minas Gerais",
-    "data": "2025-08-18",
+    "data": "18 de Agosto de 2025",
     "item_stac": "S2C_T23KMS_20250818T131301_L2A",
     "filename": "tres_pontas_2025.tif",
     "files": {
       "image": "tres_pontas_2025.tif",
       "scl": "tres_pontas_2025_scl.tif"
+    }
+  },
+  {
+    "id": "guaxupe_2024",
+    "titulo": "Guaxupé / MG",
+    "rotulo": "Histórico Multitemporal",
+    "tag": "Safra 2024",
+    "descricao": "Série histórica para análise multitemporal e vigor vegetativo de safras anteriores.",
+    "regiao": "Guaxupé, Sul de Minas Gerais",
+    "data": "17 de Julho de 2024",
+    "item_stac": "S2A_T23KLS_20240717T132233_L2A",
+    "filename": "guaxupe_2024.tif",
+    "files": {
+      "image": "guaxupe_2024.tif",
+      "scl": "guaxupe_2024_scl.tif"
     }
   }
 ]

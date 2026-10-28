@@ -1,0 +1,19 @@
+name: globalwatch-cafe-api
+type: web
+dockerfile: Dockerfile
+ports:
+  - port: 8000
+    path: /
+env:
+  - key: PORT
+    value: "8000"
+  - key: ALLOW_DEV_LOGIN
+    value: "false"
+  - key: CORS_ORIGINS
+    value: "https://globalwatch-cafe.vercel.app,https://frontend-omega-lilac-hzi9fz7c7o.vercel.app,http://localhost:5173"
+regions:
+  - was
+instance_type: free
+scalings:
+  min: 1
+  max: 1

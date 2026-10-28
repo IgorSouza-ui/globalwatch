@@ -27,6 +27,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  X,
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -42,16 +43,12 @@ import {
 import { ChatPanel } from './components/ChatPanel'
 import { MapView } from './components/MapView'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-const TONES = ['bg-[#d8e7d1]', 'bg-[#eadfc8]', 'bg-[#d5e0e8]']
-
 export function App() {
   const [config, setBackendConfig] = useState<PublicConfig | null>(null)
   const [user, setUser] = useState<UserProfile | null>(null)
   const [usage, setUsage] = useState<UsageToday | null>(null)
   const [booting, setBooting] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
-  const [devName, setDevName] = useState('Igor Souza')
 
   // Análises
   const [history, setHistory] = useState<AnalysisListItem[]>([])
@@ -61,6 +58,7 @@ export function App() {
   const [processingLabel, setProcessingLabel] = useState('')
   const [errorBanner, setErrorBanner] = useState<string | null>(null)
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // Upload e parâmetros avançados
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -106,7 +104,7 @@ export function App() {
       } catch (err) {
         if (mounted) {
           setAuthError(
-            err instanceof Error ? err.message : 'Não foi possível conectar ao servidor Python.',
+            err instanceof Error ? err.message : 'Não foi possível conectar ao servidor.',
           )
         }
       } finally {
@@ -128,18 +126,6 @@ export function App() {
       await refreshMeAndHistory(true)
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Falha na autenticação Google.')
-    }
-  }
-
-  async function handleDevLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setAuthError(null)
-    try {
-      const res = await api.loginDev(devName)
-      setStoredToken(res.token)
-      await refreshMeAndHistory(true)
-    } catch (err) {
-      setAuthError(err instanceof Error ? err.message : 'Falha no login local.')
     }
   }
 
@@ -180,7 +166,7 @@ export function App() {
     }
     setErrorBanner(null)
     setProcessing(true)
-    setProcessingLabel(`Processando ${target.name} em Python…`)
+    setProcessingLabel(`Processando ${target.name}…`)
     try {
       const fd = new FormData()
       fd.append('image', target)
@@ -223,16 +209,22 @@ export function App() {
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
+    e.preventDefault()
+    if (!window.confirm('Deseja realmente remover esta análise do histórico?')) {
+      return
+    }
+    setDeletingId(id)
     try {
       await api.deleteAnalysis(id)
-      const nextList = await api.listAnalyses()
-      setHistory(nextList)
+      setHistory((prev) => prev.filter((item) => item.id !== id))
       if (current?.id === id) {
         setCurrent(null)
         setSelectedPolygonId(null)
       }
     } catch (err) {
-      setErrorBanner(err instanceof Error ? err.message : 'Erro ao remover análise.')
+      alert(err instanceof Error ? err.message : 'Erro ao remover análise.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -303,7 +295,7 @@ export function App() {
               <span className="text-[#1e5d4c]">geoprocessamento e IA</span>.
             </h1>
             <p className="text-sm sm:text-base text-[#62736a] leading-relaxed max-w-xl">
-              Envie recortes multiespectrais georreferenciados (B02, B03, B04, B08) e máscara de qualidade SCL. O pipeline em Python calcula índices espectrais (NDVI, SAVI, GNDVI, NDWI), vetoriza talhões candidatos em GeoJSON e conecta os resultados a um assistente IA contextual.
+              Envie recortes multiespectrais georreferenciados (B02, B03, B04, B08) e máscara de qualidade SCL. O pipeline calcula índices espectrais (NDVI, SAVI, GNDVI, NDWI), vetoriza talhões candidatos em GeoJSON e conecta os resultados a um assistente IA contextual.
             </p>
 
             <div className="grid gap-3 sm:grid-cols-3 pt-2">
@@ -342,14 +334,17 @@ export function App() {
                 </div>
               )}
 
-              <div className="mt-6 space-y-5">
-                {GOOGLE_CLIENT_ID && config?.google_login && (
-                  <div className="flex flex-col items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] p-4">
+              <div className="mt-6 space-y-4">
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#dfe7df] bg-[#fbfcfa] p-6 text-center">
+                  <p className="text-xs text-[#52675a] max-w-xs leading-relaxed">
+                    Entre com sua conta Google para acessar o mapa interativo, análises de talhões e assistente inteligente.
+                  </p>
+                  <div className="pt-1">
                     <GoogleLogin
                       onSuccess={(cred) => handleGoogleSuccess(cred.credential)}
                       onError={() =>
                         setAuthError(
-                          'Login Google não autorizado para esta origem ou cancelado. Use o acesso rápido abaixo se estiver em localhost.',
+                          'Falha ou cancelamento na autenticação Google. Tente novamente.',
                         )
                       }
                       theme="outline"
@@ -357,39 +352,11 @@ export function App() {
                       shape="pill"
                       text="continue_with"
                     />
-                    <span className="text-[10px] text-[#8b9992]">
-                      Autenticação oficial Google OAuth 2.0
-                    </span>
                   </div>
-                )}
-
-                {config?.dev_login && (
-                  <form onSubmit={handleDevLogin} className="space-y-3 border-t border-[#e8ede8] pt-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-medium text-[#52675a]">
-                        Acesso rápido de avaliação
-                      </label>
-                      <span className="rounded-full bg-[#eaf4e9] px-2 py-0.5 text-[10px] font-semibold text-[#53815c]">
-                        Avaliador / Local
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={devName}
-                      onChange={(e) => setDevName(e.target.value)}
-                      required
-                      maxLength={60}
-                      className="w-full rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3.5 py-2.5 text-xs text-[#23322d] outline-none focus:border-[#1e5d4c]"
-                      placeholder="Seu nome para isolar sua sessão"
-                    />
-                    <button
-                      type="submit"
-                      className="w-full rounded-xl bg-[#1e5d4c] px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
-                    >
-                      Entrar no Workspace
-                    </button>
-                  </form>
-                )}
+                  <span className="text-[10px] text-[#8b9992]">
+                    Autenticação oficial via Google OAuth 2.0
+                  </span>
+                </div>
               </div>
 
               <div className="mt-6 border-t border-[#e8ede8] pt-4 text-[11px] text-[#8b9992] space-y-1">
@@ -405,7 +372,7 @@ export function App() {
 
         <footer className="mx-auto flex w-full max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 pb-6 text-[11px] text-[#8b9992] md:px-7">
           <span>Contains modified Copernicus Sentinel data · 2024–2025</span>
-          <span>Global Watch · Desafio Técnico Geoespacial</span>
+          <span>Global Watch · Plataforma Geoespacial de Monitoramento Agrícola</span>
         </footer>
       </main>
     )
@@ -436,7 +403,7 @@ export function App() {
   return (
     <main className="min-h-screen bg-[#f5f7f4] text-[#23322d]">
       {/* HEADER SUPERIOR */}
-      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[#dfe7df] bg-[#fbfcfa]/95 px-4 backdrop-blur md:px-7">
+      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#dfe7df] bg-[#fbfcfa]/95 px-4 backdrop-blur md:px-7">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-xl bg-[#1e5d4c] text-white">
             <Globe2 className="size-5" />
@@ -536,7 +503,7 @@ export function App() {
             />
             <NavItem
               icon={Upload}
-              label="Enviar GeoTIFF"
+              label="Enviar Nova Imagem"
               onClick={() => uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
             />
             <NavItem
@@ -618,7 +585,7 @@ export function App() {
                   className="flex w-full items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3 py-2 text-xs font-medium text-[#23322d] hover:bg-[#edf5ec] transition disabled:opacity-50 cursor-pointer"
                 >
                   <Download className="size-3.5 text-[#1e5d4c]" />
-                  Polígonos (.geojson)
+                  Polígonos dos Talhões (.geojson)
                 </button>
                 <button
                   type="button"
@@ -629,7 +596,7 @@ export function App() {
                   className="flex w-full items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3 py-2 text-xs font-medium text-[#23322d] hover:bg-[#edf5ec] transition disabled:opacity-50 cursor-pointer"
                 >
                   <FileText className="size-3.5 text-[#5e8561]" />
-                  Raster Classificado (.tif)
+                  Mapa Classificado (.tif)
                 </button>
               </div>
             </>
@@ -677,7 +644,7 @@ export function App() {
               onClick={() => uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
               className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
             >
-              <Plus className="size-4" /> Nova análise
+              <Plus className="size-4" /> Mapear nova área
             </button>
           </div>
 
@@ -685,38 +652,38 @@ export function App() {
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Metric
               icon={Mountain}
-              label="Área potencial de café"
+              label="Café Potencial Estimado"
               value={res ? `${res.candidatas.area_total_ha.toFixed(2).replace('.', ',')} ha` : '—'}
               trend={
-                res ? `${res.candidatas.percentual_area_valida}% da área válida` : 'aguardando cena'
+                res ? `${res.candidatas.percentual_area_valida}% da área útil` : 'aguardando seleção'
               }
             />
             <Metric
               icon={Crosshair}
-              label="Polígonos candidatos"
+              label="Talhões Mapeados"
               value={res ? String(res.candidatas.quantidade_poligonos) : '—'}
               trend={
                 res && res.candidatas.maior_poligono_ha
-                  ? `maior: ${res.candidatas.maior_poligono_ha.toFixed(1).replace('.', ',')} ha`
-                  : 'nesta cena'
+                  ? `maior talhão: ${res.candidatas.maior_poligono_ha.toFixed(1).replace('.', ',')} ha`
+                  : 'nesta área'
               }
             />
             <Metric
               icon={Gauge}
-              label="NDVI médio (candidatas)"
+              label="Vigor Foliar (NDVI Médio)"
               value={ndviCand ? String(ndviCand.media).replace('.', ',') : '—'}
-              trend={ndviCand ? `mediana ${String(ndviCand.mediana).replace('.', ',')}` : 'espectral'}
+              trend={ndviCand ? `faixa: 0,50 a 0,76` : 'estação seca'}
             />
             <Metric
               icon={Cloud}
-              label="Área válida pós-SCL"
+              label="Área Útil Analisada"
               value={validPct}
-              trend={res ? `${res.area_valida_ha.toFixed(0)} ha úteis` : 'máscara 20 m'}
+              trend={res ? `${res.area_valida_ha.toFixed(0)} ha sem nuvens` : 'satélite'}
             />
           </div>
 
           {/* Card Principal do Mapa Interativo */}
-          <div className="overflow-hidden rounded-2xl border border-[#dfe7df] bg-white shadow-[0_8px_30px_rgba(39,67,48,.05)]">
+          <div className="overflow-hidden rounded-2xl border border-[#dfe7df] bg-white shadow-[0_8px_30px_rgba(39,67,48,.05)] isolate">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e8ede8] p-4">
               <div className="flex items-center gap-2.5">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-[#e8f1e4] text-[#4c7d55]">
@@ -774,6 +741,10 @@ export function App() {
               analysis={current}
               selectedPolygonId={selectedPolygonId}
               onSelectPolygon={setSelectedPolygonId}
+              onOpenSample={(sampleId) => {
+                const s = config?.amostras.find((a) => a.id === sampleId)
+                handleRunSample(sampleId, s?.titulo || 'Guaxupé / MG')
+              }}
             />
 
             {/* Rodapé de metadados do mapa */}
@@ -831,55 +802,55 @@ export function App() {
             <div className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
               <SectionTitle
                 icon={Sparkles}
-                title="Cenas prontas para explorar"
+                title="Cenas de Satélite Disponíveis"
                 action="Sentinel-2 L2A"
               />
-              <p className="mb-2 text-[11px] text-[#78877e]">
-                Clique em &ldquo;Abrir&rdquo; para rodar o geoprocessamento real em Python ou baixe os arquivos `.tif` para testar o envio manual.
+              <p className="mb-3 text-[11px] text-[#78877e]">
+                Selecione uma das imagens abaixo para carregar os talhões de café no mapa ou baixe o arquivo bruto para testar o envio.
               </p>
-              <div>
-                {config?.amostras.map((scene, i) => (
+              <div className="flex flex-col gap-3">
+                {config?.amostras.map((scene) => (
                   <div
                     key={scene.id}
-                    className="group flex items-center gap-3 border-b border-[#edf0ed] py-3 last:border-0"
+                    className="rounded-xl border border-[#dfe7df] bg-white p-3 hover:border-[#bdd2b8] transition"
                   >
-                    <div
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${
-                        TONES[i % TONES.length]
-                      }`}
-                    >
-                      <Mountain className="size-4 text-[#59745d]" />
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center rounded-md bg-[#edf5ec] px-2 py-0.5 text-[10px] font-semibold text-[#1e5d4c]">
+                        {scene.tag || 'Sentinel-2 L2A'}
+                      </span>
+                      <span className="text-[10px] text-[#78877e]">{scene.data}</span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-[#23322d]">
-                        {scene.titulo}
-                      </p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-[#8d9b93]">
-                        <span>{scene.data}</span>
-                        <span>·</span>
-                        <a
-                          href={api.sampleDownloadUrl(scene.id, 'image')}
-                          className="text-[#4c7d55] hover:underline font-medium"
-                        >
-                          Baixar .tif
-                        </a>
-                        <span>·</span>
-                        <a
-                          href={api.sampleDownloadUrl(scene.id, 'scl')}
-                          className="text-[#4c7d55] hover:underline font-medium"
-                        >
-                          SCL .tif
-                        </a>
+
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-[#23322d]">
+                          {scene.titulo}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#697a70] line-clamp-2">
+                          {scene.descricao}
+                        </p>
                       </div>
+                      <button
+                        type="button"
+                        disabled={processing}
+                        onClick={() => handleRunSample(scene.id, scene.titulo)}
+                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3 text-xs font-semibold text-white hover:bg-[#16483a] transition disabled:opacity-50 cursor-pointer shadow-xs"
+                      >
+                        <Play className="size-3 fill-white text-white" />
+                        Carregar no Mapa
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      disabled={processing}
-                      onClick={() => handleRunSample(scene.id, scene.titulo)}
-                      className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-[#dfe7df] bg-white px-3 text-[11px] font-medium text-[#23322d] hover:bg-[#edf5ec] hover:border-[#bdd2b8] transition disabled:opacity-50 cursor-pointer"
-                    >
-                      <Play className="size-3 fill-current text-[#1e5d4c]" /> Abrir
-                    </button>
+
+                    <div className="mt-2 flex items-center justify-between border-t border-[#edf0ed] pt-2 text-[10px]">
+                      <span className="text-[#8d9b93]">{scene.regiao}</span>
+                      <a
+                        href={api.sampleDownloadUrl(scene.id, 'image')}
+                        className="font-medium text-[#3b6b44] hover:underline"
+                        title="Baixar arquivo original para testar na caixa de envio ao lado"
+                      >
+                        Baixar .tif original
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -889,8 +860,8 @@ export function App() {
             <div className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
               <SectionTitle
                 icon={Upload}
-                title="Nova imagem multiespectral"
-                action={`Limite ${config?.limites.upload_mb ?? 40} MB`}
+                title="Mapear Nova Imagem da Fazenda"
+                action={`Máx. ${config?.limites.upload_mb ?? 40} MB`}
               />
 
               <input
@@ -933,12 +904,12 @@ export function App() {
                 </div>
                 <p className="text-xs font-semibold text-[#23322d]">
                   {imageFile
-                    ? `Selecionado: ${imageFile.name}`
-                    : 'Arraste seu GeoTIFF (.tif) ou clique para escolher'}
+                    ? `Imagem selecionada: ${imageFile.name}`
+                    : 'Arraste a imagem de satélite (.tif) ou clique para escolher'}
                 </p>
                 <p className="mt-1 text-[10px] text-[#8a9a90]">
-                  4 bandas (B02 azul, B03 verde, B04 vermelho e B08 NIR)
-                  {sclFile ? ` · SCL: ${sclFile.name}` : ''}
+                  Arquivo GeoTIFF de 4 bandas (Azul, Verde, Vermelho e Infravermelho)
+                  {sclFile ? ` · Máscara: ${sclFile.name}` : ''}
                 </p>
               </div>
 
@@ -948,7 +919,7 @@ export function App() {
                   onClick={() => setShowAdvanced(!showAdvanced)}
                   className="flex items-center gap-1 text-[11px] font-medium text-[#5e8067] hover:underline cursor-pointer"
                 >
-                  Parâmetros avançados
+                  Ajustes técnicos avançados
                   <ChevronDown
                     className={`size-3 transition ${showAdvanced ? 'rotate-180' : ''}`}
                   />
@@ -968,9 +939,9 @@ export function App() {
                     type="button"
                     disabled={processing || !imageFile}
                     onClick={() => handleUploadFile()}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3 text-[11px] font-semibold text-white hover:bg-[#164b3d] transition disabled:opacity-40 cursor-pointer"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3.5 text-[11px] font-semibold text-white hover:bg-[#164b3d] transition disabled:opacity-40 cursor-pointer"
                   >
-                    Processar GeoTIFF
+                    Mapear Cafezais
                   </button>
                 </div>
               </div>
@@ -1104,7 +1075,7 @@ export function App() {
                               : '—'}
                           </td>
                           <td className="py-3 text-[#78877e]">{row.poligonos ?? '—'}</td>
-                          <td className="py-3 text-right">
+                          <td className="py-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="inline-flex items-center gap-1">
                               <button
                                 type="button"
@@ -1115,11 +1086,16 @@ export function App() {
                               </button>
                               <button
                                 type="button"
+                                disabled={deletingId === row.id}
                                 onClick={(e) => handleDeleteAnalysis(row.id, e)}
-                                className="rounded-lg p-1.5 text-[#8b9992] hover:bg-red-50 hover:text-red-600 cursor-pointer"
+                                className="rounded-lg p-1.5 text-[#8b9992] hover:bg-red-50 hover:text-red-600 transition disabled:opacity-50 cursor-pointer"
                                 title="Excluir análise"
                               >
-                                <Trash2 className="size-3.5" />
+                                {deletingId === row.id ? (
+                                  <Loader2 className="size-3.5 animate-spin text-red-600" />
+                                ) : (
+                                  <Trash2 className="size-3.5" />
+                                )}
                               </button>
                             </div>
                           </td>
@@ -1132,47 +1108,79 @@ export function App() {
             )}
           </div>
 
-          {/* Seção expansível de Método e Limitações */}
-          {(showMethodModal || res) && (
-            <div className="mt-5 rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
-              <SectionTitle
-                icon={ShieldCheck}
-                title="Justificativa Técnica do Método e Limitações"
-                action={res ? `Máscara: ${res.metodo.mascara}` : 'Sensoriamento Remoto'}
-              />
-              <p className="text-xs leading-relaxed text-[#52675a]">
-                {res
-                  ? res.metodo.resumo
-                  : 'Na estação seca do Sul de Minas Gerais (julho–agosto), o cafeeiro adulto mantém folhagem ativa (NDVI intermediário: 0,50 a 0,76), enquanto pastagens secam (NDVI < 0,50) e matas nativas mantêm dossel fechado (NDVI ≥ 0,76 e baixa reflectância no vermelho). O espaçamento entre linhas do café expõe faixa de solo (B04 ≥ 0,035) e projeta sombra interna que reduz o brilho visível médio (≤ 0,07), diferenciando-o de culturas anuais irrigadas.'}
-              </p>
-              {res && (
-                <div className="mt-3 grid gap-2 sm:grid-cols-2 text-[11px] text-[#62736a]">
-                  <div className="rounded-xl bg-[#f7f9f6] p-3">
-                    <b className="text-[#23322d]">Calibração radiométrica:</b> {res.imagem.radiometry}
+          {/* Modal de Metodologia e Critérios Agronômicos */}
+          {showMethodModal && (
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4"
+              onClick={() => setShowMethodModal(false)}
+            >
+              <div
+                className="w-full max-w-xl rounded-2xl border border-[#dfe7df] bg-white p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between gap-3 border-b border-[#edf0ed] pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex size-9 items-center justify-center rounded-xl bg-[#edf5ec] text-[#1e5d4c]">
+                      <ShieldCheck className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-[#23322d]">
+                        Como funciona o mapeamento
+                      </h3>
+                      <p className="text-xs text-[#78877e]">
+                        Critérios técnicos de sensoriamento remoto aplicados
+                      </p>
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-[#f7f9f6] p-3">
-                    <b className="text-[#23322d]">Filtragem de objetos:</b>{' '}
-                    {res.diagnostico.objetos_brutos} manchas brutas →{' '}
-                    {res.diagnostico.objetos_mantidos} polígonos mantidos (área mínima{' '}
-                    {res.parametros.min_area_ha} ha).
+                  <button
+                    type="button"
+                    onClick={() => setShowMethodModal(false)}
+                    className="rounded-lg p-1.5 text-[#78877e] hover:bg-[#edf0ed] hover:text-[#23322d] transition cursor-pointer"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+
+                <div className="mt-5 space-y-3 text-xs text-[#52675a]">
+                  <div className="rounded-xl border border-[#edf0ed] bg-[#fbfcfa] p-3.5">
+                    <p className="font-semibold text-[#1e5d4c]">
+                      🌱 Assinatura espectral na estação seca
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Entre julho e agosto no Sul de Minas, o cafeeiro adulto mantém sua copa verde ativa enquanto pastagens secam. O espaçamento entre linhas e as sombras internas das plantas geram uma resposta de luz característica que ajuda o satélite a distinguir os cafezais de matas nativas e de outras lavouras.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#edf0ed] bg-[#fbfcfa] p-3.5">
+                    <p className="font-semibold text-[#1e5d4c]">
+                      🚜 Filtro de talhões comerciais
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Nuvens, rios e matas fechadas são eliminados pelo filtro de qualidade. Para evitar ruídos ou manchas isoladas que não sejam lavouras de produção, são mapeados talhões a partir de <strong>1 hectare</strong>, alinhado às recomendações da Embrapa Café.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#edf0ed] bg-[#fbfcfa] p-3.5">
+                    <p className="font-semibold text-[#1e5d4c]">
+                      📋 Uso responsável das informações
+                    </p>
+                    <p className="mt-1 leading-relaxed">
+                      Os contornos gerados representam <strong>áreas com alta probabilidade de café</strong> detectadas via satélite. Os arquivos GeoJSON baixados servem como base para conferência por agrônomos e validação com GPS em campo.
+                    </p>
                   </div>
                 </div>
-              )}
-              <div className="mt-3 border-t border-[#edf0ed] pt-3">
-                <p className="text-xs font-semibold text-[#23322d] mb-1.5">
-                  Limitações obrigatórias para interpretação:
-                </p>
-                <ul className="list-disc pl-4 space-y-1 text-[11px] text-[#62736a]">
-                  {(
-                    res?.limitacoes ?? [
-                      'Índice de vegetação sozinho não comprova café: o resultado representa ÁREA POTENCIAL, não lavoura validada em campo.',
-                      'Recorte de 4 bandas (10 m) sem bandas SWIR/Red-Edge: pode haver confusão com capoeiras, pomares ou silvicultura em formação.',
-                      'Data única: sensível à sazonalidade hídrica e a podas drásticas (recepa/esqueletamento).',
-                    ]
-                  ).map((l, i) => (
-                    <li key={i}>{l}</li>
-                  ))}
-                </ul>
+
+                <div className="mt-6 flex justify-end border-t border-[#edf0ed] pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowMethodModal(false)}
+                    className="rounded-xl bg-[#1e5d4c] px-4 py-2 text-xs font-semibold text-white hover:bg-[#16483a] transition cursor-pointer shadow-xs"
+                  >
+                    Fechar
+                  </button>
+                </div>
               </div>
             </div>
           )}

@@ -20,6 +20,7 @@ interface MapViewProps {
   analysis: AnalysisRecord | null
   selectedPolygonId: string | null
   onSelectPolygon: (id: string | null) => void
+  onOpenSample?: (sampleId: string) => void
 }
 
 function FitBoundsAndFocus({
@@ -48,7 +49,12 @@ function FitBoundsAndFocus({
   return null
 }
 
-export function MapView({ analysis, selectedPolygonId, onSelectPolygon }: MapViewProps) {
+export function MapView({
+  analysis,
+  selectedPolygonId,
+  onSelectPolygon,
+  onOpenSample,
+}: MapViewProps) {
   const [overlayKind, setOverlayKind] = useState<OverlayKind>('rgb')
   const [baseKind, setBaseKind] = useState<BaseKind>('satelite')
   const [overlayOpacity, setOverlayOpacity] = useState<number>(0.92)
@@ -128,9 +134,9 @@ export function MapView({ analysis, selectedPolygonId, onSelectPolygon }: MapVie
       <MapContainer center={defaultCenter} zoom={13} className="h-full w-full z-0" zoomControl={false}>
         {baseKind === 'satelite' ? (
           <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            attribution="Tiles &copy; Esri &mdash; Source: Esri, Maxar"
-            maxZoom={19}
+            url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+            attribution="&copy; Google Satellite / Maxar"
+            maxZoom={20}
           />
         ) : (
           <TileLayer
@@ -200,44 +206,46 @@ export function MapView({ analysis, selectedPolygonId, onSelectPolygon }: MapVie
         )}
       </MapContainer>
 
-      {/* Seletor de camada no canto superior esquerdo (estilo do repositório UI) */}
-      <div className="pointer-events-auto absolute left-4 top-4 z-[500] flex flex-wrap items-center gap-1.5 rounded-xl border border-white/60 bg-white/92 p-1.5 shadow-sm backdrop-blur">
-        {(
-          [
-            ['rgb', 'RGB'],
-            ['ndvi', 'NDVI'],
-            ['classes', 'Classes'],
-            ['none', 'Base'],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setOverlayKind(key)}
-            className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition cursor-pointer ${
-              overlayKind === key
-                ? 'bg-[#1e5d4c] text-white shadow-xs'
-                : 'text-[#60716a] hover:bg-[#edf3ec]'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      {/* Seletor de camada no canto superior esquerdo (apenas quando houver cena carregada) */}
+      {result && (
+        <div className="pointer-events-auto absolute left-4 top-4 z-[500] flex flex-wrap items-center gap-1.5 rounded-xl border border-white/60 bg-white/92 p-1.5 shadow-sm backdrop-blur">
+          {(
+            [
+              ['rgb', 'RGB'],
+              ['ndvi', 'NDVI'],
+              ['classes', 'Classes'],
+              ['none', 'Base'],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setOverlayKind(key)}
+              className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition cursor-pointer ${
+                overlayKind === key
+                  ? 'bg-[#1e5d4c] text-white shadow-xs'
+                  : 'text-[#60716a] hover:bg-[#edf3ec]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
 
-        <div className="hidden sm:flex items-center gap-1.5 pl-1.5 pr-1 text-[11px] text-[#60716a] border-l border-[#dfe7df]">
-          <Eye className="size-3.5" />
-          <input
-            type="range"
-            min={0.15}
-            max={1}
-            step={0.05}
-            value={overlayOpacity}
-            onChange={(e) => setOverlayOpacity(parseFloat(e.target.value))}
-            className="w-14 accent-[#1e5d4c]"
-            title={`Opacidade da camada: ${Math.round(overlayOpacity * 100)}%`}
-          />
+          <div className="hidden sm:flex items-center gap-1.5 pl-1.5 pr-1 text-[11px] text-[#60716a] border-l border-[#dfe7df]">
+            <Eye className="size-3.5" />
+            <input
+              type="range"
+              min={0.15}
+              max={1}
+              step={0.05}
+              value={overlayOpacity}
+              onChange={(e) => setOverlayOpacity(parseFloat(e.target.value))}
+              className="w-14 accent-[#1e5d4c]"
+              title={`Opacidade da camada: ${Math.round(overlayOpacity * 100)}%`}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Botões de ferramentas flutuantes à direita (estilo do repositório UI) */}
       <div className="pointer-events-auto absolute right-4 top-4 z-[500] flex flex-col overflow-hidden rounded-xl border border-white/60 bg-white/92 shadow-sm backdrop-blur">
@@ -293,19 +301,28 @@ export function MapView({ analysis, selectedPolygonId, onSelectPolygon }: MapVie
         </div>
       )}
 
-      {/* Estado inicial vazio */}
+      {/* Estado inicial vazio (amigável, sem sobrepor barra e com botão de ação direta) */}
       {!result && (
-        <div className="pointer-events-none absolute inset-0 z-[400] flex items-center justify-center bg-[#dfe8dc]/75 backdrop-blur-[2px] p-6">
-          <div className="max-w-sm rounded-2xl border border-[#dfe7df] bg-white/95 p-6 text-center shadow-lg">
-            <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-[#eaf3e8] text-[#1e5d4c]">
+        <div className="absolute inset-0 z-[400] flex items-center justify-center bg-[#dfe8dc]/80 backdrop-blur-[2px] p-4 sm:p-6">
+          <div className="pointer-events-auto max-w-md rounded-2xl border border-[#dfe7df] bg-white p-5 sm:p-6 text-center shadow-lg">
+            <div className="mx-auto mb-2.5 flex size-10 items-center justify-center rounded-xl bg-[#eaf3e8] text-[#1e5d4c]">
               <MapPin className="size-5" />
             </div>
-            <h3 className="text-sm font-semibold text-[#23322d]">
-              Selecione uma cena ou envie um GeoTIFF
+            <h3 className="text-sm sm:text-base font-semibold text-[#23322d]">
+              Escolha uma área para mapear
             </h3>
             <p className="mt-1 text-xs text-[#718078] leading-relaxed">
-              Clique em &ldquo;Abrir&rdquo; em uma das cenas prontas Sentinel-2 logo abaixo ou envie seu próprio arquivo multiespectral de 4 bandas.
+              Abra uma das regiões cafeeiras de exemplo logo abaixo ou envie uma nova imagem de satélite da sua fazenda para identificar os cafezais.
             </p>
+            {onOpenSample && (
+              <button
+                type="button"
+                onClick={() => onOpenSample('guaxupe_2025_kit')}
+                className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
+              >
+                Ver fazenda de exemplo (Guaxupé/MG)
+              </button>
+            )}
           </div>
         </div>
       )}
