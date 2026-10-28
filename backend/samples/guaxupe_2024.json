@@ -1,0 +1,12 @@
+{
+  "item": "S2A_T23KLS_20240717T132233_L2A",
+  "datetime": "2024-07-17T13:28:09.313000Z",
+  "nuvem_cena": 0.000551,
+  "invalido_janela": 0.0,
+  "stac": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T23KLS_20240717T132233_L2A",
+  "centro": [
+    -46.68,
+    -21.33
+  ],
+  "crs": "EPSG:32723"
+}

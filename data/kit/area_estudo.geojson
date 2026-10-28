@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nome": "Área de estudo — região de Guaxupé/MG",
+        "tipo": "limite_da_imagem_sem_rotulos_de_cafe"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -46.70501614333582,
+              -21.352693213583994
+            ],
+            [
+              -46.65565597850762,
+              -21.353187135540956
+            ],
+            [
+              -46.65513716876109,
+              -21.306945822889617
+            ],
+            [
+              -46.70448188427832,
+              -21.30645307241697
+            ],
+            [
+              -46.70501614333582,
+              -21.352693213583994
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

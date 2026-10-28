@@ -1,0 +1,36 @@
+KIT MÍNIMO — GLOBAL WATCH / CAFÉ — v1.0
+
+Este kit é uma entrada comum para verificar o fluxo da aplicação.
+A pesquisa e a definição do método fazem parte do desafio.
+
+ARQUIVOS
+- DESAFIO.txt: enunciado final e critérios.
+- imagem_multiespectral.tif: recorte real Sentinel-2 L2A, quatro bandas,
+  512 x 512 pixels, resolução de 10 m, EPSG:32723.
+- qualidade_scl.tif: classificação de cena do Sentinel-2, 256 x 256 pixels,
+  resolução nativa de 20 m. Não é uma máscara de café.
+- area_estudo.geojson: limite espacial da imagem em longitude/latitude
+  WGS84. Não contém talhões ou áreas classificadas como café.
+- metadados.json: ordem das bandas, data, georreferenciamento e radiometria.
+- fonte_stac.json: registro original da cena no catálogo público.
+- ATRIBUICAO.txt: procedência e referência aos termos dos dados.
+- SHA256SUMS.txt: integridade dos arquivos do pacote.
+
+DADOS
+Aquisição: 16/08/2025, 13:28:10.823 UTC.
+Região: entorno de Guaxupé, Minas Gerais, Brasil.
+Bandas: 1 = B02 / azul; 2 = B03 / verde; 3 = B04 / vermelho;
+        4 = B08 / infravermelho próximo.
+Pixels armazenados como DN uint16. Para este arquivo:
+reflectância = DN * 0.0001 - 0.1; DN = 0 é NoData e deve ser excluído.
+Os mesmos scale/offset estão no GeoTIFF. Não aplique a conversão duas vezes.
+A SCL contém classes categóricas; a transformação radiométrica não se aplica.
+
+O recorte foi extraído sem reamostragem e empilhado em quatro bandas.
+Não há índice calculado, modelo, código de análise, rótulos ou polígonos de café.
+A presença e os limites de cafezais neste recorte não foram verificados em campo.
+A localização em região produtora não transforma toda vegetação em café.
+
+Você pode pesquisar outras bandas, datas e referências públicas adequadas.
+Documente sua escolha e as condições de uso. Não é necessário contratar
+serviços ou obter dados pagos para cumprir o desafio.

@@ -1,0 +1,23 @@
+# Segredos e variáveis locais
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+backend/storage/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+.vite/
+
+# Dados pesados / cache de referência
+data/referencia/
+*.log
+.DS_Store
+Thumbs.db

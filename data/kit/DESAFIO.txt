@@ -1,0 +1,65 @@
+GLOBAL WATCH — DESAFIO TÉCNICO: ASSISTENTE GEOSPACIAL PARA CAFÉ
+
+Desenvolva e publique uma aplicação em React e Python que permita entrar com
+Google, enviar uma imagem de satélite e conversar com uma IA para identificar
+possíveis áreas de cultivo de café.
+
+REQUISITOS OBRIGATÓRIOS
+1. Login e cadastro com Google, logout e autenticação validada no backend.
+2. Upload de imagem multiespectral georreferenciada, com processamento real
+   em Python e cálculo de pelo menos um índice espectral.
+3. Método de identificação de áreas candidatas de café, com geração de
+   polígonos e justificativa técnica da classificação.
+4. Mapa com imagem e polígonos sobrepostos, legenda, data da imagem e área
+   estimada em hectares. Permitir baixar a imagem com os polígonos e o GeoJSON.
+5. Chatbot com IA que apresente a imagem com a classificação e responda
+   perguntas sobre os resultados e suas limitações. Números e geometrias
+   devem vir do processamento da aplicação.
+6. Interface bonita, consistente e responsiva para celular e desktop, com
+   estados claros de carregamento, erro e ausência de resultados.
+7. Endpoints protegidos, isolamento dos dados entre usuários, validação de
+   uploads, limites de uso e proteção de credenciais e chaves de API.
+8. Frontend e backend hospedados em serviços gratuitos. A avaliação deve
+   funcionar sem pagamento ou fornecimento de chaves pelo avaliador.
+
+PESQUISA E USO DE IA
+Você receberá uma imagem real e seus metadados, sem rótulos de café, modelo
+ou solução pronta. Pesquise e escolha os dados complementares, índices,
+métodos, bibliotecas e serviços adequados.
+
+Obtenha e processe pelo menos uma imagem adicional, de outra data ou área.
+Apresente uma nota de pesquisa de até duas páginas contendo:
+- Pelo menos três fontes primárias, incluindo uma publicação ou metodologia
+  técnica sobre mapeamento de café.
+- Duas alternativas consideradas e a justificativa da escolha.
+- Origem e condições de uso dos dados e modelos.
+- Como verificou o resultado, um erro encontrado e as limitações do método.
+
+O uso de IA no desenvolvimento é incentivado. Informe as ferramentas usadas
+e como validou suas entregas. Modelos existentes são permitidos com atribuição;
+não é necessário treinar um modelo do zero.
+
+Importante: índice de vegetação sozinho não comprova a presença de café.
+Diferencie áreas potenciais de uma classificação validada e não apresente
+acurácia ou confiança sem evidências. O kit não possui gabarito de café.
+
+ENTREGÁVEIS
+- Link público da aplicação funcionando.
+- Repositório público no GitHub, sem segredos ou dados pessoais.
+- README com execução local, arquitetura, método, serviços usados,
+  limitações e evidências de testes essenciais de processamento e segurança.
+- Nota de pesquisa e relato do uso de IA.
+- Vídeo de até três minutos demonstrando o fluxo e a imagem adicional.
+
+Resultados fixos ou pré-calculados não substituem a análise dos arquivos
+enviados. Documente cotas, suspensão por inatividade e retenção dos dados.
+Você deverá conseguir explicar o código e defender suas decisões técnicas.
+
+AVALIAÇÃO — 100 PONTOS
+UI/UX e responsividade: 20.
+Geoprocessamento e classificação: 20.
+Segurança e backend: 20.
+Pesquisa e justificativa das decisões: 15.
+Chatbot e coerência dos resultados: 10.
+Deploy e documentação: 10.
+Organização e clareza do código: 5.

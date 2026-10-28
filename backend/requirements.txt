@@ -1,0 +1,16 @@
+fastapi==0.141.1
+uvicorn[standard]==0.42.0
+pydantic-settings==2.14.0
+python-multipart==0.0.22
+rasterio==1.5.2
+numpy==2.5.4
+shapely==2.2.0
+scipy==1.18.1
+pyproj==3.8.0
+Pillow==11.3.0
+google-auth==2.43.0
+requests==2.32.5
+httpx==0.28.1
+PyJWT==2.11.0
+slowapi==0.1.9
+pytest==9.2.0

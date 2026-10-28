@@ -1,0 +1,65 @@
+{
+  "versao": "1.0",
+  "gerado_em": "2026-10-19",
+  "item": "S2B_T23KLS_20250816T132502_L2A",
+  "fonte_stac": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T23KLS_20250816T132502_L2A",
+  "aquisicao_utc": "2025-08-16T13:28:10.823000Z",
+  "crs": "EPSG:32723",
+  "shape": [
+    4,
+    512,
+    512
+  ],
+  "resolucao_m": 10,
+  "area_total_recorte_ha": 2621.44,
+  "nodata": 0,
+  "armazenamento": "DN original; reflectancia = DN * scale + offset, exceto nodata",
+  "bandas": [
+    {
+      "indice": 1,
+      "banda": "B02",
+      "nome": "blue",
+      "scale": 0.0001,
+      "offset": -0.1,
+      "fonte": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/23/K/LS/2025/8/S2B_T23KLS_20250816T132502_L2A/B02.tif"
+    },
+    {
+      "indice": 2,
+      "banda": "B03",
+      "nome": "green",
+      "scale": 0.0001,
+      "offset": -0.1,
+      "fonte": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/23/K/LS/2025/8/S2B_T23KLS_20250816T132502_L2A/B03.tif"
+    },
+    {
+      "indice": 3,
+      "banda": "B04",
+      "nome": "red",
+      "scale": 0.0001,
+      "offset": -0.1,
+      "fonte": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/23/K/LS/2025/8/S2B_T23KLS_20250816T132502_L2A/B04.tif"
+    },
+    {
+      "indice": 4,
+      "banda": "B08",
+      "nome": "nir",
+      "scale": 0.0001,
+      "offset": -0.1,
+      "fonte": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/23/K/LS/2025/8/S2B_T23KLS_20250816T132502_L2A/B08.tif"
+    }
+  ],
+  "scl": {
+    "arquivo": "qualidade_scl.tif",
+    "resolucao_m": 20,
+    "nota": "Classificação de cena/qualidade do Sentinel-2, não classificação de café.",
+    "fonte": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/23/K/LS/2025/8/S2B_T23KLS_20250816T132502_L2A/SCL.tif"
+  },
+  "alteracoes": [
+    "Recorte espacial sem reamostragem",
+    "Empilhamento das quatro bandas nativas de 10 m",
+    "Metadados radiométricos preservados",
+    "SCL mantida na resolução nativa de 20 m"
+  ],
+  "rotulos_cafe": null,
+  "nota": "Imagem real de uma região produtora; presença e limites de cafezais neste recorte não foram verificados em campo."
+}

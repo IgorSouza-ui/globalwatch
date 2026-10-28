@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: globalwatch-cafe-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ALLOW_DEV_LOGIN
+        value: "false"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

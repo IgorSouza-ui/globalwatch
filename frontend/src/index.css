@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+.leaflet-container {
+  background: #dfe8dc !important;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #ffffff !important;
+  color: #23322d !important;
+  border: 1px solid #dfe7df;
+  box-shadow: 0 12px 28px -6px rgba(35, 50, 45, 0.16);
+  border-radius: 14px;
+}
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: #68796e !important;
+  font-size: 10px !important;
+  border-radius: 6px 0 0 0;
+}
+.leaflet-control-attribution a {
+  color: #1e5d4c !important;
+}
