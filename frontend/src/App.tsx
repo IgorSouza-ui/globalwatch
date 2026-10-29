@@ -426,7 +426,6 @@ export function App() {
                         size="large"
                         shape="pill"
                         text="continue_with"
-                        useOneTap
                       />
                     </div>
                   )}
