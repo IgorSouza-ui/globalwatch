@@ -1,7 +1,8 @@
 # Global Watch · Assistente Geoespacial para Café
 
-> 🌐 **Aplicação em Produção:** [https://globalwatch-cafe.vercel.app](https://globalwatch-cafe.vercel.app)  
-> ⚙️ **API Backend em Produção (Render):** [https://globalwatch-lptl.onrender.com](https://globalwatch-lptl.onrender.com) (Documentação Swagger: [/api/docs](https://globalwatch-lptl.onrender.com/api/docs))  
+> 🌐 **Aplicação em Produção (Frontend Vercel):** [https://globalwatch-cafe.vercel.app](https://globalwatch-cafe.vercel.app)  
+> ⚙️ **API Backend em Produção (Google Cloud Run):** [https://globalwatch-backend-284416777232.us-central1.run.app](https://globalwatch-backend-284416777232.us-central1.run.app) (Swagger: [/api/docs](https://globalwatch-backend-284416777232.us-central1.run.app/api/docs))  
+> ⚙️ **API Backend Espelho (Render):** [https://globalwatch-lptl.onrender.com](https://globalwatch-lptl.onrender.com)  
 > 📦 **Repositório GitHub:** [https://github.com/IgorSouza-ui/globalwatch](https://github.com/IgorSouza-ui/globalwatch)
 
 Aplicação web fullstack (**React + TypeScript + Leaflet** no frontend e **Python + FastAPI + Rasterio + NumPy + Shapely** no backend) para autenticação com Google, upload e processamento real de imagens multiespectrais **Sentinel-2 L2A (GeoTIFF)**, identificação e vetorização de **áreas potenciais de cultivo de café**, visualização em mapa interativo de satélite e consulta a um **Assistente IA (Gemini)** contextualizado com os dados e geometrias calculados.
