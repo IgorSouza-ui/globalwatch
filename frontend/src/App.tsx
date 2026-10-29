@@ -589,26 +589,55 @@ export function App() {
             />
           </nav>
 
-          {/* Cota diária discreta e informativa */}
-          <div className="mt-auto border-t border-[#edf0ed] pt-3 text-[11px] text-[#78877e]">
-            <div className="flex items-center justify-between">
-              <span className="text-[#62736a]">Cota do dia:</span>
-              <span className="font-semibold text-[#1e5d4c]">
-                {usage?.analises ?? 0}/100 análises
-              </span>
-            </div>
-            <p className="mt-0.5 text-[10px] text-[#9aa69f]">
-              Isolamento e expurgo automático em 24h
+          {/* Cenas de Satélite Rápidas na Barra Lateral */}
+          <div className="my-3.5 h-px bg-[#edf0ed]" />
+          <div className="mb-2 px-1 flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#9aa69f]">
+              Cenas Prontas
             </p>
+            <span className="text-[9px] font-semibold text-[#1e5d4c] bg-[#eaf4e9] px-1.5 py-0.5 rounded-md">
+              3 regiões
+            </span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {config?.amostras.map((scene) => {
+              const isActive = current?.filename === scene.filename
+              return (
+                <button
+                  key={scene.id}
+                  type="button"
+                  disabled={processing}
+                  onClick={() => handleRunSample(scene.id, scene.titulo)}
+                  className={`flex flex-col gap-0.5 rounded-xl border p-2.5 text-left transition cursor-pointer ${
+                    isActive
+                      ? 'border-[#1e5d4c] bg-[#edf5eb] shadow-xs'
+                      : 'border-[#e8ede8] bg-[#fbfcfa] hover:border-[#bdd2b8] hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-[#1e5d4c]">
+                      {scene.rotulo}
+                    </span>
+                    <span className="text-[9px] text-[#8b9992]">{scene.data.slice(0, 6)}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <span className="text-xs font-bold text-[#23322d]">
+                      {scene.titulo}
+                    </span>
+                    <Play className="size-2.5 fill-[#1e5d4c] text-[#1e5d4c]" />
+                  </div>
+                </button>
+              )
+            })}
           </div>
 
           {res && (
             <>
-              <div className="my-5 h-px bg-[#edf0ed]" />
-              <p className="mb-2.5 px-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#9aa69f]">
+              <div className="my-3.5 h-px bg-[#edf0ed]" />
+              <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-[.18em] text-[#9aa69f]">
                 Exportar cena ativa
               </p>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <button
                   type="button"
                   disabled={downloadingFile !== null}
@@ -618,7 +647,7 @@ export function App() {
                       `${stem}_imagem_com_poligonos.png`,
                     )
                   }
-                  className="flex w-full items-center gap-2 rounded-xl bg-[#1e5d4c] px-3 py-2 text-xs font-medium text-white hover:bg-[#164b3d] transition disabled:opacity-50 cursor-pointer"
+                  className="flex w-full items-center gap-2 rounded-xl bg-[#1e5d4c] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#164b3d] transition disabled:opacity-50 cursor-pointer"
                 >
                   <FileImage className="size-3.5" />
                   Imagem com Polígonos (.png)
@@ -632,44 +661,48 @@ export function App() {
                       `${stem}_areas_potenciais_cafe.geojson`,
                     )
                   }
-                  className="flex w-full items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3 py-2 text-xs font-medium text-[#23322d] hover:bg-[#edf5ec] transition disabled:opacity-50 cursor-pointer"
+                  className="flex w-full items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3 py-1.5 text-[11px] font-medium text-[#23322d] hover:bg-[#edf5ec] transition disabled:opacity-50 cursor-pointer"
                 >
                   <Download className="size-3.5 text-[#1e5d4c]" />
-                  Polígonos dos Talhões (.geojson)
-                </button>
-                <button
-                  type="button"
-                  disabled={downloadingFile !== null}
-                  onClick={() =>
-                    handleProtectedDownload('classificacao.tif', `${stem}_classificacao.tif`)
-                  }
-                  className="flex w-full items-center gap-2 rounded-xl border border-[#dfe7df] bg-[#fbfcfa] px-3 py-2 text-xs font-medium text-[#23322d] hover:bg-[#edf5ec] transition disabled:opacity-50 cursor-pointer"
-                >
-                  <FileText className="size-3.5 text-[#5e8561]" />
-                  Mapa Classificado (.tif)
+                  Polígonos (.geojson)
                 </button>
               </div>
             </>
           )}
 
-          <div className="mt-auto flex flex-col gap-1 pt-6 border-t border-[#edf0ed]">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAdvanced(true)
-                uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[#718078] hover:bg-[#f5f8f4] cursor-pointer"
-            >
-              <Settings2 className="size-4" /> Parâmetros do método
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[#718078] hover:bg-red-50 hover:text-red-700 cursor-pointer"
-            >
-              <LogOut className="size-4" /> Sair da conta
-            </button>
+          {/* Rodapé fixo na base da barra lateral com cota e botões */}
+          <div className="mt-auto flex flex-col gap-2 pt-3 border-t border-[#edf0ed]">
+            <div className="rounded-xl bg-[#f2f7f1] p-2.5 text-[11px] text-[#78877e]">
+              <div className="flex items-center justify-between">
+                <span className="text-[#62736a]">Cota do dia:</span>
+                <span className="font-semibold text-[#1e5d4c]">
+                  {usage?.analises ?? 0}/100 análises
+                </span>
+              </div>
+              <p className="mt-0.5 text-[9px] text-[#9aa69f]">
+                Isolamento e expurgo automático em 24h
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdvanced(true)
+                  uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-[#718078] hover:bg-[#f5f8f4] cursor-pointer"
+              >
+                <Settings2 className="size-3.5" /> Parâmetros
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-[#718078] hover:bg-red-50 hover:text-red-700 cursor-pointer"
+              >
+                <LogOut className="size-3.5" /> Sair
+              </button>
+            </div>
           </div>
         </aside>
 
