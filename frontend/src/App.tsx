@@ -98,6 +98,7 @@ export function App() {
   const [usage, setUsage] = useState<UsageToday | null>(null)
   // Se não há token salvo, entra imediatamente na tela inicial sem tela de carregamento
   const [booting, setBooting] = useState<boolean>(() => Boolean(getStoredToken()))
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
 
   // Análises
@@ -178,12 +179,15 @@ export function App() {
   async function handleGoogleSuccess(credential?: string) {
     if (!credential) return
     setAuthError(null)
+    setIsLoggingIn(true)
     try {
       const res = await api.loginGoogle(credential)
       setStoredToken(res.token)
       await refreshMeAndHistory(true)
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Falha na autenticação Google.')
+    } finally {
+      setIsLoggingIn(false)
     }
   }
 
@@ -397,20 +401,33 @@ export function App() {
                   <p className="text-xs text-[#52675a] max-w-xs leading-relaxed">
                     Entre com sua conta Google para acessar o mapa interativo, análises de talhões e assistente inteligente.
                   </p>
-                  <div className="pt-1">
-                    <GoogleLogin
-                      onSuccess={(cred) => handleGoogleSuccess(cred.credential)}
-                      onError={() =>
-                        setAuthError(
-                          'Falha ou cancelamento na autenticação Google. Tente novamente.',
-                        )
-                      }
-                      theme="outline"
-                      size="large"
-                      shape="pill"
-                      text="continue_with"
-                    />
-                  </div>
+                  {isLoggingIn ? (
+                    <div className="flex flex-col items-center justify-center gap-2.5 py-4">
+                      <Loader2 className="size-6 animate-spin text-[#1e5d4c]" />
+                      <span className="text-xs font-semibold text-[#1e5d4c]">
+                        Entrando no workspace…
+                      </span>
+                      <span className="text-[10px] text-[#8b9992]">
+                        Carregando suas análises e mapa
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="pt-1">
+                      <GoogleLogin
+                        onSuccess={(cred) => handleGoogleSuccess(cred.credential)}
+                        onError={() =>
+                          setAuthError(
+                            'Falha ou cancelamento na autenticação Google. Tente novamente.',
+                          )
+                        }
+                        theme="outline"
+                        size="large"
+                        shape="pill"
+                        text="continue_with"
+                        useOneTap
+                      />
+                    </div>
+                  )}
                   <span className="text-[10px] text-[#8b9992]">
                     Autenticação oficial via Google OAuth 2.0
                   </span>
