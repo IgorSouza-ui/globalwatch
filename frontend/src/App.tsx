@@ -436,7 +436,7 @@ export function App() {
 
               <div className="mt-6 border-t border-[#e8ede8] pt-4 text-[11px] text-[#8b9992] space-y-1">
                 <div>
-                  • Cota por usuário: {config?.limites.analises_por_dia ?? 15} análises/dia · upload máx.{' '}
+                  • Cota por usuário: {config?.limites.analises_por_dia ?? 100} análises/dia · upload máx.{' '}
                   {config?.limites.upload_mb ?? 40} MB
                 </div>
                 <div>• Retenção automática de dados: {config?.limites.retencao_horas ?? 24}h</div>
@@ -626,6 +626,17 @@ export function App() {
                     </span>
                     <Play className="size-2.5 fill-[#1e5d4c] text-[#1e5d4c]" />
                   </div>
+                  <div className="mt-1 flex items-center justify-between text-[9px] text-[#718078] border-t border-[#edf0ed] pt-1">
+                    <span>Sentinel-2 L2A</span>
+                    <a
+                      href={api.sampleDownloadUrl(scene.id, 'image')}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[#3b6b44] font-medium hover:underline"
+                      title="Baixar arquivo GeoTIFF bruto para testar envio manual"
+                    >
+                      Baixar .tif
+                    </a>
+                  </div>
                 </button>
               )
             })}
@@ -775,7 +786,7 @@ export function App() {
                   <p className="text-[11px] text-[#8b9992]">
                     {res
                       ? `Sentinel-2 · ${(res.data_imagem || 'data não informada').slice(0, 10)} · recorte ${res.area_total_ha.toFixed(2).replace('.', ',')} ha`
-                      : 'Clique em uma cena pronta abaixo ou envie um GeoTIFF'}
+                      : 'Selecione uma região na barra lateral ou envie um GeoTIFF'}
                   </p>
                 </div>
               </div>
@@ -877,67 +888,9 @@ export function App() {
             )}
           </div>
 
-          {/* Cenas Prontas + Upload de GeoTIFF */}
-          <div ref={uploadSectionRef} className="mt-5 grid gap-5 lg:grid-cols-2">
-            {/* Card 1: Cenas prontas */}
-            <div className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
-              <SectionTitle
-                icon={Sparkles}
-                title="Cenas de Satélite Disponíveis"
-                action="Sentinel-2 L2A"
-              />
-              <p className="mb-3 text-[11px] text-[#78877e]">
-                Selecione uma das imagens abaixo para carregar os talhões de café no mapa ou baixe o arquivo bruto para testar o envio.
-              </p>
-              <div className="flex flex-col gap-3">
-                {config?.amostras.map((scene) => (
-                  <div
-                    key={scene.id}
-                    className="rounded-xl border border-[#dfe7df] bg-white p-3 hover:border-[#bdd2b8] transition"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center rounded-md bg-[#edf5ec] px-2 py-0.5 text-[10px] font-semibold text-[#1e5d4c]">
-                        {scene.tag || 'Sentinel-2 L2A'}
-                      </span>
-                      <span className="text-[10px] text-[#78877e]">{scene.data}</span>
-                    </div>
-
-                    <div className="mt-2 flex items-center justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-[#23322d]">
-                          {scene.titulo}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-[#697a70] line-clamp-2">
-                          {scene.descricao}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={processing}
-                        onClick={() => handleRunSample(scene.id, scene.titulo)}
-                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3 text-xs font-semibold text-white hover:bg-[#16483a] transition disabled:opacity-50 cursor-pointer shadow-xs"
-                      >
-                        <Play className="size-3 fill-white text-white" />
-                        Carregar no Mapa
-                      </button>
-                    </div>
-
-                    <div className="mt-2 flex items-center justify-between border-t border-[#edf0ed] pt-2 text-[10px]">
-                      <span className="text-[#8d9b93]">{scene.regiao}</span>
-                      <a
-                        href={api.sampleDownloadUrl(scene.id, 'image')}
-                        className="font-medium text-[#3b6b44] hover:underline"
-                        title="Baixar arquivo original para testar na caixa de envio ao lado"
-                      >
-                        Baixar .tif original
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Card 2: Upload de GeoTIFF */}
+          {/* Seção Inferior: Upload de GeoTIFF e Histórico de Análises lado a lado */}
+          <div ref={uploadSectionRef} className="mt-5 grid gap-5 lg:grid-cols-2 items-start">
+            {/* Card 1: Upload de GeoTIFF */}
             <div className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
               <SectionTitle
                 icon={Upload}
@@ -1102,91 +1055,91 @@ export function App() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Tabela de Histórico de Análises */}
-          <div
-            ref={historySectionRef}
-            className="mt-5 rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]"
-          >
-            <SectionTitle
-              icon={AreaChart}
-              title={`Histórico de análises (${history.length})`}
-              action="Isolado por usuário"
-            />
-            {history.length === 0 ? (
-              <p className="py-6 text-center text-xs text-[#8b9992]">
-                Você ainda não processou nenhuma cena nesta sessão. Clique em &ldquo;Abrir&rdquo; em uma cena pronta acima.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] text-left text-xs">
-                  <thead className="border-b border-[#e8ede8] text-[10px] uppercase tracking-wider text-[#9aa69f]">
-                    <tr>
-                      <th className="pb-3 font-medium">Arquivo / cena</th>
-                      <th className="pb-3 font-medium">Data da imagem</th>
-                      <th className="pb-3 font-medium">Área potencial</th>
-                      <th className="pb-3 font-medium">Polígonos</th>
-                      <th className="pb-3 text-right font-medium">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((row) => {
-                      const isCurrent = current?.id === row.id
-                      return (
-                        <tr
-                          key={row.id}
-                          onClick={() => handleSelectHistory(row.id)}
-                          className={`border-b border-[#edf0ed] last:border-0 cursor-pointer transition ${
-                            isCurrent ? 'bg-[#f2f7f1]' : 'hover:bg-[#fbfcfa]'
-                          }`}
-                        >
-                          <td className="py-3 font-medium text-[#23322d]">
-                            <span className="mr-2 inline-flex size-6 items-center justify-center rounded bg-[#edf4ea] text-[#5e8561]">
-                              <FileText className="size-3" />
-                            </span>
-                            {row.filename}
-                          </td>
-                          <td className="py-3 text-[#78877e]">
-                            {(row.data_imagem || '—').slice(0, 10)}
-                          </td>
-                          <td className="py-3 font-semibold text-[#2c6a4f]">
-                            {row.area_candidata_ha != null
-                              ? `${row.area_candidata_ha.toFixed(2).replace('.', ',')} ha`
-                              : '—'}
-                          </td>
-                          <td className="py-3 text-[#78877e]">{row.poligonos ?? '—'}</td>
-                          <td className="py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="inline-flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleSelectHistory(row.id)}
-                                className="rounded-lg px-2.5 py-1 text-[11px] font-medium text-[#1e5d4c] hover:bg-[#eaf3e8] cursor-pointer"
-                              >
-                                {isCurrent ? 'Ativa' : 'Abrir'}
-                              </button>
-                              <button
-                                type="button"
-                                disabled={deletingId === row.id}
-                                onClick={(e) => handleDeleteAnalysis(row.id, e)}
-                                className="rounded-lg p-1.5 text-[#8b9992] hover:bg-red-50 hover:text-red-600 transition disabled:opacity-50 cursor-pointer"
-                                title="Excluir análise"
-                              >
-                                {deletingId === row.id ? (
-                                  <Loader2 className="size-3.5 animate-spin text-red-600" />
-                                ) : (
-                                  <Trash2 className="size-3.5" />
-                                )}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            {/* Card 2: Histórico de Análises (lado a lado com upload) */}
+            <div
+              ref={historySectionRef}
+              className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]"
+            >
+              <SectionTitle
+                icon={AreaChart}
+                title={`Histórico de análises (${history.length})`}
+                action="Isolado por usuário"
+              />
+              {history.length === 0 ? (
+                <p className="py-6 text-center text-xs text-[#8b9992]">
+                  Você ainda não processou nenhuma cena nesta sessão. Selecione uma das 3 regiões na lateral esquerda ou envie um GeoTIFF ao lado.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[500px] text-left text-xs">
+                    <thead className="border-b border-[#e8ede8] text-[10px] uppercase tracking-wider text-[#9aa69f]">
+                      <tr>
+                        <th className="pb-3 font-medium">Arquivo / cena</th>
+                        <th className="pb-3 font-medium">Data</th>
+                        <th className="pb-3 font-medium">Área</th>
+                        <th className="pb-3 font-medium">Polígonos</th>
+                        <th className="pb-3 text-right font-medium">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map((row) => {
+                        const isCurrent = current?.id === row.id
+                        return (
+                          <tr
+                            key={row.id}
+                            onClick={() => handleSelectHistory(row.id)}
+                            className={`border-b border-[#edf0ed] last:border-0 cursor-pointer transition ${
+                              isCurrent ? 'bg-[#f2f7f1]' : 'hover:bg-[#fbfcfa]'
+                            }`}
+                          >
+                            <td className="py-2.5 font-medium text-[#23322d] truncate max-w-[140px]" title={row.filename}>
+                              <span className="mr-1.5 inline-flex size-5 items-center justify-center rounded bg-[#edf4ea] text-[#5e8561]">
+                                <FileText className="size-2.5" />
+                              </span>
+                              {row.filename}
+                            </td>
+                            <td className="py-2.5 text-[#78877e]">
+                              {(row.data_imagem || '—').slice(0, 10)}
+                            </td>
+                            <td className="py-2.5 font-semibold text-[#2c6a4f]">
+                              {row.area_candidata_ha != null
+                                ? `${row.area_candidata_ha.toFixed(1).replace('.', ',')} ha`
+                                : '—'}
+                            </td>
+                            <td className="py-2.5 text-[#78877e]">{row.poligonos ?? '—'}</td>
+                            <td className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectHistory(row.id)}
+                                  className="rounded-lg px-2 py-1 text-[10px] font-medium text-[#1e5d4c] hover:bg-[#eaf3e8] cursor-pointer"
+                                >
+                                  {isCurrent ? 'Ativa' : 'Abrir'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={deletingId === row.id}
+                                  onClick={(e) => handleDeleteAnalysis(row.id, e)}
+                                  className="rounded-lg p-1 text-[#8b9992] hover:bg-red-50 hover:text-red-600 transition disabled:opacity-50 cursor-pointer"
+                                  title="Excluir análise"
+                                >
+                                  {deletingId === row.id ? (
+                                    <Loader2 className="size-3 animate-spin text-red-600" />
+                                  ) : (
+                                    <Trash2 className="size-3" />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Modal de Metodologia e Critérios Agronômicos */}

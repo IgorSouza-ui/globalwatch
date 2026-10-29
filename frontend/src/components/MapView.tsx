@@ -7,6 +7,7 @@ import {
   Globe2,
   Loader2,
   MapPin,
+  Play,
   RotateCcw,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -335,7 +336,7 @@ export function MapView({
               Escolha uma área para mapear
             </h3>
             <p className="mt-1 text-xs text-[#718078] leading-relaxed">
-              Abra uma das regiões cafeeiras de exemplo logo abaixo ou envie uma nova imagem de satélite da sua fazenda para identificar os cafezais.
+              Selecione uma das 3 regiões cafeeiras na barra lateral esquerda ou clique no botão abaixo para carregar o kit oficial de Guaxupé/MG.
             </p>
             {onOpenSample && (
               <button
@@ -344,7 +345,12 @@ export function MapView({
                 onClick={() => onOpenSample('guaxupe_2025_kit')}
                 className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition disabled:opacity-50 cursor-pointer"
               >
-                Ver fazenda de exemplo (Guaxupé/MG)
+                {processing ? (
+                  <Loader2 className="size-3.5 animate-spin text-white" />
+                ) : (
+                  <Play className="size-3.5 fill-white text-white" />
+                )}
+                {processing ? 'Carregando cafezais…' : 'Ver fazenda de exemplo (Guaxupé/MG)'}
               </button>
             )}
           </div>
