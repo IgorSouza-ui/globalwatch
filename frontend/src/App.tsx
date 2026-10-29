@@ -199,6 +199,12 @@ export function App() {
     } catch {
       // ignora erro se já expirou
     }
+    try {
+      // @ts-expect-error Google GIS global
+      window.google?.accounts?.id?.disableAutoSelect?.()
+    } catch {
+      // noop
+    }
     setStoredToken(null)
     setUser(null)
     setCurrent(null)
@@ -355,30 +361,30 @@ export function App() {
               <Sparkles className="size-3.5" /> Monitoramento Cafeeiro · Sentinel-2 (10 m)
             </span>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#23322d] leading-tight">
-              Identificação de áreas potenciais de cultivo de café com{' '}
-              <span className="text-[#1e5d4c]">geoprocessamento e IA</span>.
+              Identificação de áreas de cultivo de café com{' '}
+              <span className="text-[#1e5d4c]">satélite e IA</span>.
             </h1>
             <p className="text-sm sm:text-base text-[#62736a] leading-relaxed max-w-xl">
-              Envie recortes multiespectrais georreferenciados (B02, B03, B04, B08) e máscara de qualidade SCL. O pipeline calcula índices espectrais (NDVI, SAVI, GNDVI, NDWI), vetoriza talhões candidatos em GeoJSON e conecta os resultados a um assistente IA contextual.
+              Monitore fazendas e lavouras cafeeiras através de imagens de satélite Sentinel-2. Visualize os talhões identificados no mapa interativo e converse com o assistente inteligente para tirar dúvidas sobre cada área.
             </p>
 
             <div className="grid gap-3 sm:grid-cols-3 pt-2">
               <div className="rounded-2xl border border-[#dfe7df] bg-white p-4 shadow-[0_8px_30px_rgba(39,67,48,.04)]">
-                <p className="text-xs font-semibold text-[#1e5d4c]">1. Radiometria & SCL</p>
+                <p className="text-xs font-semibold text-[#1e5d4c]">🗺️ Mapa Interativo</p>
                 <p className="mt-1 text-[11px] text-[#718078] leading-relaxed">
-                  Conversão DN → reflectância única, exclusão de NoData, nuvens e sombras (SCL 20 m).
+                  Navegue pela imagem de satélite com camadas reais de vegetação e talhões sobrepostos.
                 </p>
               </div>
               <div className="rounded-2xl border border-[#dfe7df] bg-white p-4 shadow-[0_8px_30px_rgba(39,67,48,.04)]">
-                <p className="text-xs font-semibold text-[#1e5d4c]">2. Polígonos & GeoJSON</p>
+                <p className="text-xs font-semibold text-[#1e5d4c]">📐 Talhões & Métricas</p>
                 <p className="mt-1 text-[11px] text-[#718078] leading-relaxed">
-                  Regras espectrais e filtro de objetos (≥ 1 ha) com cálculo geodésico em hectares.
+                  Área calculada em hectares, vigor foliar e exportação direta em GeoJSON e PNG.
                 </p>
               </div>
               <div className="rounded-2xl border border-[#dfe7df] bg-white p-4 shadow-[0_8px_30px_rgba(39,67,48,.04)]">
-                <p className="text-xs font-semibold text-[#1e5d4c]">3. Assistente Gemini</p>
+                <p className="text-xs font-semibold text-[#1e5d4c]">🤖 Assistente Inteligente</p>
                 <p className="mt-1 text-[11px] text-[#718078] leading-relaxed">
-                  Respostas ancoradas nas métricas reais processadas e transparentes sobre limitações.
+                  Converse com a IA para analisar os maiores talhões, recomendações e detalhes da lavoura.
                 </p>
               </div>
             </div>
@@ -425,7 +431,7 @@ export function App() {
                         theme="outline"
                         size="large"
                         shape="pill"
-                        text="continue_with"
+                        text="signin_with"
                       />
                     </div>
                   )}
