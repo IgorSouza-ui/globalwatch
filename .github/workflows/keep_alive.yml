@@ -1,0 +1,15 @@
+name: Keep Render Backend Warm
+
+on:
+  schedule:
+    # A cada 10 minutos para garantir que o Render nunca entre em modo de suspensão
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API Health
+        run: |
+          curl -s -f -m 30 https://globalwatch-lptl.onrender.com/api/health || true

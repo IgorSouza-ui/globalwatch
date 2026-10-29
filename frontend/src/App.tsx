@@ -43,11 +43,61 @@ import {
 import { ChatPanel } from './components/ChatPanel'
 import { MapView } from './components/MapView'
 
+const DEFAULT_CONFIG: PublicConfig = {
+  google_login: true,
+  dev_login: false,
+  ia_configurada: true,
+  limites: {
+    upload_mb: 40,
+    max_pixels: 4194304,
+    analises_por_dia: 15,
+    mensagens_chat_por_dia: 60,
+    analises_armazenadas: 10,
+    retencao_horas: 24,
+  },
+  amostras: [
+    {
+      id: 'guaxupe_2025_kit',
+      titulo: 'Guaxupé / MG',
+      rotulo: 'Sul de Minas Gerais',
+      tag: 'Safra 2025',
+      descricao: 'Monitoramento de lavouras cafeeiras no Sul de Minas (Sentinel-2, 10m).',
+      regiao: 'Guaxupé, Sul de Minas Gerais',
+      data: '16 de Agosto de 2025',
+      item_stac: 'S2B_T23KLS_20250816T132502_L2A',
+      filename: 'imagem_multiespectral.tif',
+    },
+    {
+      id: 'tres_pontas_2025',
+      titulo: 'Três Pontas / MG',
+      rotulo: 'Sul de Minas Gerais',
+      tag: 'Safra 2025',
+      descricao: 'Mapeamento de cafezais de alta densidade no Sul de Minas.',
+      regiao: 'Três Pontas, Sul de Minas Gerais',
+      data: '18 de Agosto de 2025',
+      item_stac: 'S2C_T23KMS_20250818T131301_L2A',
+      filename: 'tres_pontas_2025.tif',
+    },
+    {
+      id: 'guaxupe_2024',
+      titulo: 'Guaxupé / MG',
+      rotulo: 'Histórico Multitemporal',
+      tag: 'Safra 2024',
+      descricao: 'Série histórica para análise multitemporal e vigor vegetativo de safras anteriores.',
+      regiao: 'Guaxupé, Sul de Minas Gerais',
+      data: '17 de Julho de 2024',
+      item_stac: 'S2A_T23KLS_20240717T132233_L2A',
+      filename: 'guaxupe_2024.tif',
+    },
+  ],
+}
+
 export function App() {
-  const [config, setBackendConfig] = useState<PublicConfig | null>(null)
+  const [config, setBackendConfig] = useState<PublicConfig>(DEFAULT_CONFIG)
   const [user, setUser] = useState<UserProfile | null>(null)
   const [usage, setUsage] = useState<UsageToday | null>(null)
-  const [booting, setBooting] = useState(true)
+  // Se não há token salvo, entra imediatamente na tela inicial sem tela de carregamento
+  const [booting, setBooting] = useState<boolean>(() => Boolean(getStoredToken()))
   const [authError, setAuthError] = useState<string | null>(null)
 
   // Análises
@@ -94,20 +144,28 @@ export function App() {
   useEffect(() => {
     let mounted = true
     async function init() {
-      try {
-        const cfg = await api.getConfig()
-        if (!mounted) return
-        setBackendConfig(cfg)
-        if (getStoredToken()) {
+      // 1. Dispara busca da configuração em background (acorda o backend sem travar a interface)
+      api
+        .getConfig()
+        .then((cfg) => {
+          if (mounted && cfg) setBackendConfig(cfg)
+        })
+        .catch(() => {
+          // Mantém DEFAULT_CONFIG pronto sem interromper a navegação
+        })
+
+      // 2. Se houver token salvo de sessão anterior, tenta restaurar
+      if (getStoredToken()) {
+        try {
           await refreshMeAndHistory(true)
+        } catch {
+          // Token expirado ou inválido: limpa e permite novo login
+          setStoredToken(null)
+          if (mounted) setUser(null)
+        } finally {
+          if (mounted) setBooting(false)
         }
-      } catch (err) {
-        if (mounted) {
-          setAuthError(
-            err instanceof Error ? err.message : 'Não foi possível conectar ao servidor.',
-          )
-        }
-      } finally {
+      } else {
         if (mounted) setBooting(false)
       }
     }
@@ -253,7 +311,7 @@ export function App() {
       <div className="flex min-h-screen items-center justify-center bg-[#f5f7f4] text-[#23322d]">
         <div className="flex items-center gap-3 rounded-2xl border border-[#dfe7df] bg-white px-6 py-4 shadow-sm">
           <Loader2 className="size-5 animate-spin text-[#1e5d4c]" />
-          <span className="text-sm font-medium">Iniciando plataforma geoespacial…</span>
+          <span className="text-sm font-medium">Validando sessão…</span>
         </div>
       </div>
     )
