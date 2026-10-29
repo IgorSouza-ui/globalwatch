@@ -3,6 +3,7 @@ import {
   AlertCircle,
   AreaChart,
   BarChart3,
+  Bot,
   Check,
   ChevronDown,
   CircleHelp,
@@ -122,6 +123,7 @@ export function App() {
   const [redMin, setRedMin] = useState(0.035)
   const [visMax, setVisMax] = useState(0.07)
   const [minAreaHa, setMinAreaHa] = useState(1.0)
+  const [mobileView, setMobileView] = useState<'mapa' | 'chat'>('mapa')
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const sclInputRef = useRef<HTMLInputElement | null>(null)
@@ -718,7 +720,33 @@ export function App() {
         </aside>
 
         {/* COLUNA CENTRAL */}
-        <section className="min-w-0">
+        <section className={`min-w-0 ${mobileView === 'chat' ? 'hidden xl:block' : 'block'}`}>
+          {/* Alternador Mobile (Mapa vs Assistente IA) */}
+          <div className="mb-4 xl:hidden flex rounded-xl border border-[#dfe7df] bg-[#edf2ec] p-1">
+            <button
+              type="button"
+              onClick={() => setMobileView('mapa')}
+              className={`flex-1 rounded-lg py-2 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                mobileView === 'mapa'
+                  ? 'bg-white text-[#1e5d4c] shadow-xs'
+                  : 'text-[#62736a] hover:text-[#23322d]'
+              }`}
+            >
+              <MapIcon className="size-3.5" /> Mapa & Fazendas
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileView('chat')}
+              className={`flex-1 rounded-lg py-2 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                mobileView === 'chat'
+                  ? 'bg-[#1e5d4c] text-white shadow-xs'
+                  : 'text-[#62736a] hover:text-[#23322d]'
+              }`}
+            >
+              <Bot className="size-3.5" /> Assistente IA
+            </button>
+          </div>
+
           {/* Topo do Workspace: Título compacto e Ação rápida */}
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -736,6 +764,60 @@ export function App() {
             >
               <Plus className="size-3.5" /> Enviar novo GeoTIFF
             </button>
+          </div>
+
+          {/* Seletor rápido de Cenas no Mobile / Tablet (< xl) */}
+          <div className="mb-4 xl:hidden rounded-2xl border border-[#dfe7df] bg-white p-3.5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="size-3.5 text-[#1e5d4c]" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#23322d]">
+                  Cenas Disponíveis
+                </span>
+              </div>
+              <span className="text-[10px] text-[#76907d] font-semibold bg-[#eaf4e9] px-2 py-0.5 rounded-full">
+                3 regiões
+              </span>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x scrollbar-thin">
+              {config?.amostras.map((scene) => {
+                const isActive = current?.filename === scene.filename
+                return (
+                  <div
+                    key={scene.id}
+                    className={`min-w-[220px] max-w-[240px] shrink-0 snap-start rounded-xl border p-2.5 transition ${
+                      isActive
+                        ? 'border-[#1e5d4c] bg-[#edf5eb]'
+                        : 'border-[#dfe7df] bg-[#fbfcfa]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-semibold text-[#1e5d4c]">{scene.rotulo || 'Safra 2025'}</span>
+                      <span className="text-[#8b9992]">{scene.data.slice(0, 7)}</span>
+                    </div>
+                    <p className="mt-1 text-xs font-bold text-[#23322d] truncate">{scene.titulo}</p>
+                    <p className="text-[10px] text-[#718078] truncate">{scene.regiao}</p>
+                    <div className="mt-2.5 flex items-center justify-between border-t border-[#edf0ed] pt-1.5">
+                      <button
+                        type="button"
+                        disabled={processing}
+                        onClick={() => handleRunSample(scene.id, scene.titulo)}
+                        className="inline-flex items-center gap-1 rounded-lg bg-[#1e5d4c] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#16483a] disabled:opacity-50 cursor-pointer shadow-xs"
+                      >
+                        <Play className="size-2.5 fill-white text-white" /> Carregar
+                      </button>
+                      <a
+                        href={api.sampleDownloadUrl(scene.id, 'image')}
+                        className="text-[10px] text-[#3b6b44] font-medium hover:underline"
+                        title="Baixar arquivo GeoTIFF original"
+                      >
+                        Baixar .tif
+                      </a>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           {/* 4 Cards de Métricas Principais */}
@@ -1151,7 +1233,7 @@ export function App() {
               onClick={() => setShowMethodModal(false)}
             >
               <div
-                className="w-full max-w-xl rounded-2xl border border-[#dfe7df] bg-white p-6 shadow-2xl"
+                className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl border border-[#dfe7df] bg-white p-5 sm:p-6 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-start justify-between gap-3 border-b border-[#edf0ed] pb-4">
@@ -1221,7 +1303,25 @@ export function App() {
         </section>
 
         {/* SIDEBAR DIREITA: Chatbot IA + Índices Espectrais + Interpretação Responsável */}
-        <aside className="flex min-w-0 flex-col gap-5">
+        <aside className={`min-w-0 flex-col gap-5 ${mobileView === 'mapa' ? 'hidden xl:flex' : 'flex'}`}>
+          {/* Alternador Mobile no topo do painel da IA (< xl) */}
+          <div className="xl:hidden flex rounded-xl border border-[#dfe7df] bg-[#edf2ec] p-1">
+            <button
+              type="button"
+              onClick={() => setMobileView('mapa')}
+              className="flex-1 rounded-lg py-2 text-xs font-semibold text-[#62736a] hover:text-[#23322d] transition cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <MapIcon className="size-3.5" /> Mapa & Fazendas
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileView('chat')}
+              className="flex-1 rounded-lg py-2 text-xs font-semibold bg-[#1e5d4c] text-white shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <Bot className="size-3.5" /> Assistente IA
+            </button>
+          </div>
+
           <ChatPanel
             analysis={current}
             iaConfigurada={Boolean(config?.ia_configurada)}
@@ -1289,6 +1389,27 @@ export function App() {
           <span>Retenção de dados: {config?.limites.retencao_horas ?? 24}h</span>
         </span>
       </footer>
+
+      {/* Botão Flutuante Mobile para alternar entre Mapa e Chatbot rapidamente */}
+      <div className="fixed bottom-5 right-5 z-40 xl:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileView(mobileView === 'mapa' ? 'chat' : 'mapa')}
+          className="flex items-center gap-2 rounded-full bg-[#1e5d4c] px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[#1e5d4c]/30 hover:bg-[#164b3d] transition active:scale-95 cursor-pointer"
+        >
+          {mobileView === 'mapa' ? (
+            <>
+              <Bot className="size-4" />
+              <span>Falar com IA</span>
+            </>
+          ) : (
+            <>
+              <MapIcon className="size-4" />
+              <span>Ver Mapa</span>
+            </>
+          )}
+        </button>
+      </div>
     </main>
   )
 }
