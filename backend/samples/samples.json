@@ -30,18 +30,18 @@
     }
   },
   {
-    "id": "guaxupe_2024",
-    "titulo": "Guaxupé / MG",
-    "rotulo": "Histórico Multitemporal",
-    "tag": "Safra 2024",
-    "descricao": "Série histórica para análise multitemporal e vigor vegetativo de safras anteriores.",
-    "regiao": "Guaxupé, Sul de Minas Gerais",
-    "data": "17 de Julho de 2024",
-    "item_stac": "S2A_T23KLS_20240717T132233_L2A",
-    "filename": "guaxupe_2024.tif",
+    "id": "patrocinio_2025",
+    "titulo": "Patrocínio / MG",
+    "rotulo": "Cerrado Mineiro",
+    "tag": "Safra 2025",
+    "descricao": "Pólo tecnológico de café irrigado e mecanizado do Cerrado Mineiro.",
+    "regiao": "Patrocínio, Cerrado Mineiro",
+    "data": "02 de Julho de 2025",
+    "item_stac": "S2C_T23KKV_20250702T132518_L2A",
+    "filename": "patrocinio_2025.tif",
     "files": {
-      "image": "guaxupe_2024.tif",
-      "scl": "guaxupe_2024_scl.tif"
+      "image": "patrocinio_2025.tif",
+      "scl": "patrocinio_2025_scl.tif"
     }
   }
 ]

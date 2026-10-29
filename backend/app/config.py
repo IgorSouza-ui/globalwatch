@@ -35,9 +35,9 @@ class Settings(BaseSettings):
     max_upload_mb: int = 40
     max_pixels: int = 2048 * 2048
     retention_hours: int = 24
-    max_analyses_per_user_day: int = 15
-    max_chat_messages_per_user_day: int = 60
-    max_stored_analyses_per_user: int = 10
+    max_analyses_per_user_day: int = 100
+    max_chat_messages_per_user_day: int = 300
+    max_stored_analyses_per_user: int = 50
 
     @property
     def cors_list(self) -> list[str]:

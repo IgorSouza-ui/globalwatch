@@ -50,9 +50,9 @@ const DEFAULT_CONFIG: PublicConfig = {
   limites: {
     upload_mb: 40,
     max_pixels: 4194304,
-    analises_por_dia: 15,
-    mensagens_chat_por_dia: 60,
-    analises_armazenadas: 10,
+    analises_por_dia: 100,
+    mensagens_chat_por_dia: 300,
+    analises_armazenadas: 50,
     retencao_horas: 24,
   },
   amostras: [
@@ -79,15 +79,15 @@ const DEFAULT_CONFIG: PublicConfig = {
       filename: 'tres_pontas_2025.tif',
     },
     {
-      id: 'guaxupe_2024',
-      titulo: 'Guaxupé / MG',
-      rotulo: 'Histórico Multitemporal',
-      tag: 'Safra 2024',
-      descricao: 'Série histórica para análise multitemporal e vigor vegetativo de safras anteriores.',
-      regiao: 'Guaxupé, Sul de Minas Gerais',
-      data: '17 de Julho de 2024',
-      item_stac: 'S2A_T23KLS_20240717T132233_L2A',
-      filename: 'guaxupe_2024.tif',
+      id: 'patrocinio_2025',
+      titulo: 'Patrocínio / MG',
+      rotulo: 'Cerrado Mineiro',
+      tag: 'Safra 2025',
+      descricao: 'Pólo tecnológico de café irrigado e mecanizado do Cerrado Mineiro.',
+      regiao: 'Patrocínio, Cerrado Mineiro',
+      data: '02 de Julho de 2025',
+      item_stac: 'S2C_T23KKV_20250702T132518_L2A',
+      filename: 'patrocinio_2025.tif',
     },
   ],
 }
@@ -463,12 +463,7 @@ export function App() {
     .slice(0, 2)
     .toUpperCase()
 
-  const analisesPct = usage
-    ? Math.min(100, Math.round((usage.analises / Math.max(usage.analises_limite, 1)) * 100))
-    : 0
-  const chatPct = usage
-    ? Math.min(100, Math.round((usage.mensagens / Math.max(usage.mensagens_limite, 1)) * 100))
-    : 0
+
 
   const validPct = res
     ? `${((res.area_valida_ha / Math.max(res.area_total_ha, 0.01)) * 100).toFixed(1).replace('.', ',')}%`
@@ -594,37 +589,17 @@ export function App() {
             />
           </nav>
 
-          <div className="my-5 h-px bg-[#edf0ed]" />
-
-          <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#9aa69f]">
-            Sua cota hoje
-          </p>
-          <div className="rounded-xl bg-[#f2f7f1] p-3.5">
-            <div className="mb-2 flex justify-between text-xs">
-              <span className="text-[#62736a]">Análises</span>
-              <b>
-                {usage?.analises ?? 0} / {usage?.analises_limite ?? 15}
-              </b>
+          {/* Cota diária discreta e informativa */}
+          <div className="mt-auto border-t border-[#edf0ed] pt-3 text-[11px] text-[#78877e]">
+            <div className="flex items-center justify-between">
+              <span className="text-[#62736a]">Cota do dia:</span>
+              <span className="font-semibold text-[#1e5d4c]">
+                {usage?.analises ?? 0}/100 análises
+              </span>
             </div>
-            <div className="h-1.5 rounded-full bg-[#dce8d9]">
-              <div
-                className="h-full rounded-full bg-[#5d9562] transition-all"
-                style={{ width: `${analisesPct}%` }}
-              />
-            </div>
-
-            <div className="mt-3.5 flex justify-between text-xs">
-              <span className="text-[#62736a]">Mensagens IA</span>
-              <b>
-                {usage?.mensagens ?? 0} / {usage?.mensagens_limite ?? 60}
-              </b>
-            </div>
-            <div className="mt-2 h-1.5 rounded-full bg-[#dce8d9]">
-              <div
-                className="h-full rounded-full bg-[#d19b54] transition-all"
-                style={{ width: `${chatPct}%` }}
-              />
-            </div>
+            <p className="mt-0.5 text-[10px] text-[#9aa69f]">
+              Isolamento e expurgo automático em 24h
+            </p>
           </div>
 
           {res && (
@@ -700,26 +675,22 @@ export function App() {
 
         {/* COLUNA CENTRAL */}
         <section className="min-w-0">
-          {/* Saudação e botão Nova análise */}
-          <div className="mb-5 flex items-end justify-between gap-4">
+          {/* Topo do Workspace: Título compacto e Ação rápida */}
+          <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="mb-1 text-xs font-medium uppercase tracking-wider text-[#76907d]">
-                MONITORAMENTO ORBITAL · SUL DE MINAS GERAIS
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#76907d]">
+                MONITORAMENTO ORBITAL · SUL & CERRADO DE MINAS
               </p>
-              <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                Olá, {(user.name || user.email).split(' ')[0]}{' '}
-                <span className="text-[#82a26e]">.</span>
+              <h1 className="text-xl font-semibold tracking-tight md:text-2xl text-[#23322d]">
+                Olá, {(user.name || user.email).split(' ')[0]}
               </h1>
-              <p className="mt-1 text-sm text-[#77857e]">
-                Acompanhe a identificação espectral de áreas potenciais de café e converse com a IA.
-              </p>
             </div>
             <button
               type="button"
               onClick={() => uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
             >
-              <Plus className="size-4" /> Mapear nova área
+              <Plus className="size-3.5" /> Enviar novo GeoTIFF
             </button>
           </div>
 
