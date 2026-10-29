@@ -816,6 +816,8 @@ export function App() {
               analysis={current}
               selectedPolygonId={selectedPolygonId}
               onSelectPolygon={setSelectedPolygonId}
+              processing={processing}
+              processingLabel={processingLabel}
               onOpenSample={(sampleId) => {
                 const s = config?.amostras.find((a) => a.id === sampleId)
                 handleRunSample(sampleId, s?.titulo || 'Guaxupé / MG')

@@ -21,6 +21,8 @@ interface MapViewProps {
   selectedPolygonId: string | null
   onSelectPolygon: (id: string | null) => void
   onOpenSample?: (sampleId: string) => void
+  processing?: boolean
+  processingLabel?: string
 }
 
 function FitBoundsAndFocus({
@@ -54,6 +56,8 @@ export function MapView({
   selectedPolygonId,
   onSelectPolygon,
   onOpenSample,
+  processing = false,
+  processingLabel = '',
 }: MapViewProps) {
   const [overlayKind, setOverlayKind] = useState<OverlayKind>('rgb')
   const [baseKind, setBaseKind] = useState<BaseKind>('satelite')
@@ -301,8 +305,27 @@ export function MapView({
         </div>
       )}
 
+      {/* Overlay de carregamento do mapa com feedback visual imediato */}
+      {processing && (
+        <div className="absolute inset-0 z-[500] flex items-center justify-center bg-[#f5f7f4]/85 backdrop-blur-xs p-4 sm:p-6 transition-all">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#dfe7df] bg-white p-6 sm:p-8 text-center shadow-xl max-w-sm">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-[#eaf3e8] text-[#1e5d4c]">
+              <Loader2 className="size-6 animate-spin text-[#1e5d4c]" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-[#23322d]">
+                {processingLabel || 'Carregando fazenda…'}
+              </h4>
+              <p className="mt-1 text-xs text-[#718078]">
+                Identificando cafezais e projetando os talhões no mapa
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Estado inicial vazio (amigável, sem sobrepor barra e com botão de ação direta) */}
-      {!result && (
+      {!result && !processing && (
         <div className="absolute inset-0 z-[400] flex items-center justify-center bg-[#dfe8dc]/80 backdrop-blur-[2px] p-4 sm:p-6">
           <div className="pointer-events-auto max-w-md rounded-2xl border border-[#dfe7df] bg-white p-5 sm:p-6 text-center shadow-lg">
             <div className="mx-auto mb-2.5 flex size-10 items-center justify-center rounded-xl bg-[#eaf3e8] text-[#1e5d4c]">
@@ -317,8 +340,9 @@ export function MapView({
             {onOpenSample && (
               <button
                 type="button"
+                disabled={processing}
                 onClick={() => onOpenSample('guaxupe_2025_kit')}
-                className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition cursor-pointer"
+                className="mt-3.5 inline-flex items-center gap-1.5 rounded-xl bg-[#1e5d4c] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#164b3d] transition disabled:opacity-50 cursor-pointer"
               >
                 Ver fazenda de exemplo (Guaxupé/MG)
               </button>
