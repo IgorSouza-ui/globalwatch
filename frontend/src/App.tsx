@@ -473,7 +473,7 @@ export function App() {
   const ndviCand = res?.indices_candidatas?.ndvi
 
   return (
-    <main className="min-h-screen bg-[#f5f7f4] text-[#23322d]">
+    <main className="min-h-screen bg-[#f5f7f4] text-[#23322d] overflow-x-hidden max-w-full">
       {/* HEADER SUPERIOR */}
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#dfe7df] bg-[#fbfcfa]/95 px-4 backdrop-blur md:px-7">
         <div className="flex items-center gap-3">
@@ -560,7 +560,7 @@ export function App() {
       )}
 
       {/* GRID PRINCIPAL DE 3 COLUNAS */}
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-5 p-4 md:p-7 xl:grid-cols-[270px_minmax(500px,1fr)_360px]">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-5 p-3.5 sm:p-4 md:p-7 xl:grid-cols-[270px_minmax(500px,1fr)_360px] min-w-0 max-w-full overflow-x-hidden">
         {/* SIDEBAR ESQUERDA */}
         <aside className="hidden rounded-2xl border border-[#dfe7df] bg-white p-4 xl:flex xl:flex-col shadow-[0_8px_30px_rgba(39,67,48,.03)]">
           <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#9aa69f]">
@@ -720,7 +720,7 @@ export function App() {
         </aside>
 
         {/* COLUNA CENTRAL */}
-        <section className={`min-w-0 ${mobileView === 'chat' ? 'hidden xl:block' : 'block'}`}>
+        <section className={`min-w-0 max-w-full overflow-hidden ${mobileView === 'chat' ? 'hidden xl:block' : 'block'}`}>
           {/* Alternador Mobile (Mapa vs Assistente IA) */}
           <div className="mb-4 xl:hidden flex rounded-xl border border-[#dfe7df] bg-[#edf2ec] p-1">
             <button
@@ -767,7 +767,7 @@ export function App() {
           </div>
 
           {/* Seletor rápido de Cenas no Mobile / Tablet (< xl) */}
-          <div className="mb-4 xl:hidden rounded-2xl border border-[#dfe7df] bg-white p-3.5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
+          <div className="mb-4 xl:hidden rounded-2xl border border-[#dfe7df] bg-white p-3.5 shadow-[0_8px_30px_rgba(39,67,48,.03)] min-w-0 max-w-full overflow-hidden">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="size-3.5 text-[#1e5d4c]" />
@@ -779,7 +779,7 @@ export function App() {
                 3 regiões
               </span>
             </div>
-            <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x scrollbar-thin">
+            <div className="flex gap-2.5 overflow-x-auto max-w-full pb-1 snap-x scrollbar-thin">
               {config?.amostras.map((scene) => {
                 const isActive = current?.filename === scene.filename
                 return (
@@ -855,7 +855,7 @@ export function App() {
           </div>
 
           {/* Card Principal do Mapa Interativo */}
-          <div className="overflow-hidden rounded-2xl border border-[#dfe7df] bg-white shadow-[0_8px_30px_rgba(39,67,48,.05)] isolate">
+          <div className="overflow-hidden rounded-2xl border border-[#dfe7df] bg-white shadow-[0_8px_30px_rgba(39,67,48,.05)] isolate min-w-0 max-w-full">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e8ede8] p-4">
               <div className="flex items-center gap-2.5">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-[#e8f1e4] text-[#4c7d55]">
@@ -946,7 +946,7 @@ export function App() {
 
             {/* Barra de seleção rápida dos maiores talhões */}
             {res && res.poligonos_resumo.length > 0 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto border-t border-[#e8ede8] bg-[#fbfcfa] px-4 py-2.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto max-w-full border-t border-[#e8ede8] bg-[#fbfcfa] px-3 sm:px-4 py-2.5 scrollbar-thin">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8b9992] shrink-0 mr-1">
                   Focar talhão:
                 </span>
@@ -971,9 +971,9 @@ export function App() {
           </div>
 
           {/* Seção Inferior: Upload de GeoTIFF e Histórico de Análises lado a lado */}
-          <div ref={uploadSectionRef} className="mt-5 grid gap-5 lg:grid-cols-2 items-start">
+          <div ref={uploadSectionRef} className="mt-5 grid gap-5 lg:grid-cols-2 items-start min-w-0 max-w-full">
             {/* Card 1: Upload de GeoTIFF */}
-            <div className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]">
+            <div className="rounded-2xl border border-[#dfe7df] bg-white p-4 sm:p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)] min-w-0 max-w-full">
               <SectionTitle
                 icon={Upload}
                 title="Mapear Nova Imagem da Fazenda"
@@ -1029,7 +1029,7 @@ export function App() {
                 </p>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
@@ -1041,21 +1041,21 @@ export function App() {
                   />
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => sclInputRef.current?.click()}
                     className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#dfe7df] bg-[#fbfcfa] px-2.5 text-[11px] font-medium text-[#52675a] hover:bg-[#edf5ec] transition cursor-pointer"
                   >
                     <Paperclip className="size-3" />
-                    {sclFile ? 'Trocar SCL' : 'Máscara SCL (.tif)'}
+                    {sclFile ? 'Trocar SCL' : 'Máscara SCL'}
                   </button>
 
                   <button
                     type="button"
                     disabled={processing || !imageFile}
                     onClick={() => handleUploadFile()}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3.5 text-[11px] font-semibold text-white hover:bg-[#164b3d] transition disabled:opacity-40 cursor-pointer"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#1e5d4c] px-3.5 text-[11px] font-semibold text-white hover:bg-[#164b3d] transition disabled:opacity-40 cursor-pointer shadow-xs"
                   >
                     Mapear Cafezais
                   </button>
@@ -1141,7 +1141,7 @@ export function App() {
             {/* Card 2: Histórico de Análises (lado a lado com upload) */}
             <div
               ref={historySectionRef}
-              className="rounded-2xl border border-[#dfe7df] bg-white p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)]"
+              className="rounded-2xl border border-[#dfe7df] bg-white p-4 sm:p-5 shadow-[0_8px_30px_rgba(39,67,48,.03)] min-w-0 max-w-full overflow-hidden"
             >
               <SectionTitle
                 icon={AreaChart}
@@ -1153,15 +1153,15 @@ export function App() {
                   Você ainda não processou nenhuma cena nesta sessão. Selecione uma das 3 regiões na lateral esquerda ou envie um GeoTIFF ao lado.
                 </p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[500px] text-left text-xs">
+                <div className="overflow-x-auto max-w-full">
+                  <table className="w-full min-w-[340px] text-left text-xs">
                     <thead className="border-b border-[#e8ede8] text-[10px] uppercase tracking-wider text-[#9aa69f]">
                       <tr>
-                        <th className="pb-3 font-medium">Arquivo / cena</th>
-                        <th className="pb-3 font-medium">Data</th>
-                        <th className="pb-3 font-medium">Área</th>
-                        <th className="pb-3 font-medium">Polígonos</th>
-                        <th className="pb-3 text-right font-medium">Ações</th>
+                        <th className="pb-2.5 font-medium">Cena</th>
+                        <th className="pb-2.5 font-medium">Data</th>
+                        <th className="pb-2.5 font-medium">Área</th>
+                        <th className="pb-2.5 font-medium">Políg.</th>
+                        <th className="pb-2.5 text-right font-medium">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1175,22 +1175,22 @@ export function App() {
                               isCurrent ? 'bg-[#f2f7f1]' : 'hover:bg-[#fbfcfa]'
                             }`}
                           >
-                            <td className="py-2.5 font-medium text-[#23322d] truncate max-w-[140px]" title={row.filename}>
+                            <td className="py-2 font-medium text-[#23322d] truncate max-w-[110px]" title={row.filename}>
                               <span className="mr-1.5 inline-flex size-5 items-center justify-center rounded bg-[#edf4ea] text-[#5e8561]">
                                 <FileText className="size-2.5" />
                               </span>
                               {row.filename}
                             </td>
-                            <td className="py-2.5 text-[#78877e]">
+                            <td className="py-2 text-[#78877e] text-[11px]">
                               {(row.data_imagem || '—').slice(0, 10)}
                             </td>
-                            <td className="py-2.5 font-semibold text-[#2c6a4f]">
+                            <td className="py-2 font-semibold text-[#2c6a4f] text-[11px]">
                               {row.area_candidata_ha != null
                                 ? `${row.area_candidata_ha.toFixed(1).replace('.', ',')} ha`
                                 : '—'}
                             </td>
-                            <td className="py-2.5 text-[#78877e]">{row.poligonos ?? '—'}</td>
-                            <td className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                            <td className="py-2 text-[#78877e] text-[11px]">{row.poligonos ?? '—'}</td>
+                            <td className="py-2 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="inline-flex items-center gap-1">
                                 <button
                                   type="button"

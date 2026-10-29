@@ -135,7 +135,7 @@ export function MapView({
   const defaultCenter: [number, number] = [-21.33, -46.68]
 
   return (
-    <div className="relative h-[380px] sm:h-[460px] w-full overflow-hidden bg-[#dfe8dc]">
+    <div className="relative h-[380px] sm:h-[460px] w-full max-w-full overflow-hidden bg-[#dfe8dc]">
       <MapContainer center={defaultCenter} zoom={13} className="h-full w-full z-0" zoomControl={false}>
         {baseKind === 'satelite' ? (
           <TileLayer
