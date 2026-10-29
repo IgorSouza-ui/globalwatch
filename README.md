@@ -106,9 +106,9 @@ O pipeline em [`backend/app/processing.py`](backend/app/processing.py) processa 
 
 | Cena Sentinel-2 L2A | Data | Região | Polígonos Candidatos | Área Potencial (ha) | Concordância com MapBiomas (Café / Café+Mosaico) |
 | :--- | :---: | :--- | :---: | :---: | :---: |
-| **`guaxupe_2025_kit.tif`** *(Kit Oficial)* | 16/08/2025 | Guaxupé/MG | 70 | **238,92 ha** | Recupera **53,1%** do Café MapBiomas; **51,5%** da área candidata cai em Café (11,2%) + Mosaico (40,3%) |
-| **`tres_pontas_2025.tif`** *(Adicional 1)* | 18/08/2025 | Três Pontas/MG | 54 | **1.123,71 ha** | **84,3%** da área candidata cai diretamente em Café MapBiomas (**91,3%** com Mosaico); recupera **59,1%** |
-| **`guaxupe_2024.tif`** *(Adicional 2)* | 17/07/2024 | Guaxupé/MG | 28 | **70,31 ha** | Demonstra o efeito fenológico: no início do inverno (julho), parte dos cafezais ainda tem `NDVI ≥ 0,76` |
+| **`guaxupe_2025_kit.tif`** *(Kit Oficial)* | 16/08/2025 | Guaxupé/MG (Sul de Minas) | 70 | **238,92 ha** | Recupera **53,1%** do Café MapBiomas; **51,5%** da área candidata cai em Café (11,2%) + Mosaico (40,3%) |
+| **`tres_pontas_2025.tif`** *(Adicional 1)* | 18/08/2025 | Três Pontas/MG (Sul de Minas) | 54 | **1.123,71 ha** | **84,3%** da área candidata cai diretamente em Café MapBiomas (**91,3%** com Mosaico); recupera **59,1%** |
+| **`patrocinio_2025.tif`** *(Adicional 2)* | 02/07/2025 | Patrocínio/MG (Cerrado Mineiro) | 48 | **852,10 ha** | Pólo tecnológico de café irrigado e mecanizado do Cerrado Mineiro (0,00% nuvens) |
 
 ---
 

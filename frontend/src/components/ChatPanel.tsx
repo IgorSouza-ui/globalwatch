@@ -23,7 +23,7 @@ export function ChatPanel({ analysis, iaConfigurada, onQuotaChange }: ChatPanelP
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastSource, setLastSource] = useState<string | null>(null)
-  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     let active = true
@@ -50,7 +50,12 @@ export function ChatPanel({ analysis, iaConfigurada, onQuotaChange }: ChatPanelP
   }, [analysis])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
   }, [messages, sending])
 
   async function handleSend(text?: string) {
@@ -105,7 +110,7 @@ export function ChatPanel({ analysis, iaConfigurada, onQuotaChange }: ChatPanelP
       </div>
 
       {/* Corpo de mensagens */}
-      <div className="flex-1 space-y-3.5 overflow-y-auto p-4">
+      <div ref={messagesContainerRef} className="flex-1 space-y-3.5 overflow-y-auto p-4">
         {!analysis || analysis.status !== 'done' ? (
           <div className="rounded-xl bg-[#f1f6ef] p-4 text-xs leading-relaxed text-[#52675a]">
             <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold text-[#568060]">
@@ -168,7 +173,6 @@ export function ChatPanel({ analysis, iaConfigurada, onQuotaChange }: ChatPanelP
             </div>
           </>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Barra de input */}
